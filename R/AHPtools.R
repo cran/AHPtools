@@ -1,11 +1,20 @@
 eps <- 0.0001
-consistentPCM <- matrix(c(1,9,1,1,1,  1/9,1,1/9,1/7,1/6,   1,9,1,1,1,
-                          1,7,1,1,1,   1,6,1,1,1), nrow=5, byrow=TRUE)
 rin <- c(0,0,0.52,0.89,1.11,1.25,1.35,1.40,1.45,1.49,1.52,1.54,1.56,1.58,1.59)
 rth <- c(0,0,0.05,0.09,rep(0.1,11))
 fs <- c(1/(9:1),2:9)
 lim <- 500
 lc2 <- lim*(lim-1)/2
+ord <- rep(3:12,each=2)
+Q1 <- c(0.25,1.442,0.243,1.414,0.219,1.319,0.201,1.319,0.186,1.313,0.17,1.3,
+        0.158,1.29,0.146,1.284,0.135,1.283,0.127,1.281)
+Q2 <- c(0.376,1.747,0.325,1.348,0.281,1.341,0.247,1.314,0.222,1.304,0.2,1.294,
+        0.182,1.297,0.169,1.303,0.155,1.296,0.144,1.292)
+Q3 <- c(0.499,1.26,0.402,1.357,0.342,1.345,0.297,1.338,0.261,1.33,0.233,1.321,
+        0.211,1.324,0.194,1.311,0.176,1.306,0.163,1.307)
+Q4 <- c(0.746,1.4,0.691,1.402,0.627,1.381,0.563,1.353,0.482,1.339,0.435,1.34,
+        0.424,1.331,0.331,1.326,0.293,1.322,0.278,1.319)
+type <- rep(c('0D','1C'),10)
+ec <- data.frame(cbind(ord,Q1,Q2,Q3,Q4,type))
 
 notPCM <- function(PCM) {
   if (!setequal(diag(PCM),rep(1,nrow(PCM)))) return(TRUE)
@@ -30,6 +39,7 @@ bestM <- function(pcm) {
   return(bestMatrix)
 }
 
+
 randomPert <- function(val) {
   r <- which(rank(abs(val-fs))<=5)
   randomChoice <- fs[sample(r,1)]
@@ -47,29 +57,161 @@ perturb <- function(PCM) {
   return(pertPCM)
 }
 
+mDev <- function(pcm, ppcm) {
+  o <- nrow(pcm)
+  gm <- 1
+  for (r in 1:(o-1))
+    for (c in (r+1):o) {
+      rat <- ppcm[r,c] / pcm[r,c]
+      rat <- ifelse(rat < 1, 1/rat, rat)
+      gm <- gm * rat
+    }
+  mgm <- gm^(2/(o*(o-1)))
+  return(inconGM=mgm)
+}
+
+#' @param vec
+#'
+#' @title Create a Pairwise Comparison Matrix of order n for Analytic Hierarchy
+#' Process from a vector of length n(n-1)/2 comparison ratios
+#' @description Create a Pairwise Comparison Matrix of order n from a vector of
+#' length n(n-1)/2 independent upper triangular elements
+#'
+#' @param vec The preference vector of length as the order of the 'PCM'
+#'
+#' @returns A Pairwise Comparison Matrix corresponding to the upper triangular
+#' elements
+#' @importFrom stats runif
+#' @examples
+#' PCM <- createPCM(c(1,2,0.5,3,0.5,2));
+#' PCM <- createPCM(c(1,.5,2,1/3,4,2,.25,1/3,.5,1,.2,6,2,3,1/3));
+#' @export
+createPCM <- function(vec) {
+    n <- (1+sqrt(1+8*length(vec)))/2
+    if (n!=as.integer(n)) {
+        return(1)
+    } else {
+        pcm <- diag(n)
+        vecPtr <- 0
+        for (r in 1:(n-1))
+            for (c in (r+1):n) {
+                vecPtr <- vecPtr+1
+                pcm[r,c] <- vec[vecPtr]
+                pcm[c,r] <- 1/vec[vecPtr]
+            }
+    }
+    return(pcm)
+}
+
+#' @title Simulated Logical Pairwise Comparison Matrix for the
+#' Analytic Hierarchy Process
+#'
+#' @description Creates a logical pairwise comparison matrix for the Analytic
+#' Hierarchy Process such as would be created by a rational decision maker
+#' based on a relative vector of preferences for the alternatives involved.
+#' Choices of the pairwise comparison ratios are from the Fundamental Scale
+#' and simulate a reasonable degree of error. The algorithm is modified from
+#' a paper by Bose, A [2022], \doi{https://doi.org/10.1002/mcda.1784}
+#'
+#' @param ord The desired order of the Pairwise Comparison Matrix
+#' @param prefVec The preference vector of length as the order of the
+#' input matrix
+#' @returns A Logical Pairwise Comparison Matrix
+#' @importFrom stats runif
+#' @examples
+#' lPCM <- createLogicalPCM(3,c(1,2,3));
+#' lPCM <- createLogicalPCM(5,c(0.25,0.4,0.1,0.05,0.2));
+#' @export
+createLogicalPCM <- function(ord, prefVec=rep(NA,ord)) {
+  if (is.na(ord)) stop("The first parameter is mandatory")
+  if (!is.numeric(ord) || ord %% 1 != 0)
+    stop("The first parameter has to be an integer")
+  if (!all(is.na(prefVec)) && !is.numeric(prefVec))
+    stop("The second parameter has to be a numeric vector")
+  if (!all(is.na(prefVec)) && length(prefVec)!=ord)
+    stop("The length of the second parameter has to be the same as the first")
+  opt <- c(1/(9:2),1:9)
+
+  if (is.na(prefVec[1]))
+    prefVec <- runif(ord)
+
+  mperfect <- outer(prefVec, prefVec, "/")
+
+  bestMat <- bestM(mperfect)
+  PCM <- list(ord=ord, orgVec=prefVec, ppcm=bestMat)
+
+  # creating a logical PCM from a consistent PCM (bestM)
+  m <-  PCM$ppcm
+  ord <- PCM$ord
+  # now creating a logical PCM
+  for (r in 1:(ord-1)) {
+    for (c in (r+1):ord) {
+      m1 <- which.min(abs(opt-m[r,c]))
+      m2 <- which.min(abs(opt[-m1]-m[r,c]))
+      m3 <- which.min(abs(opt[-c(m1,m2)]-m[r,c]))
+      # random choice from the nearest 3
+      allChoices <- choices <- c(m1, m2, m3)
+      if (m[r,c] >= 1) {
+        choices <- allChoices[opt[allChoices] >= 1]
+      } else if (m[r,c] < 1) {
+        choices <- allChoices[opt[allChoices] <= 1]
+      }
+      m[r,c] <- sample(opt[choices],1)
+      m[c,r] <- 1/m[r,c]
+    }
+  }
+  e <- Re(eigen(m)$vectors[,1])/sum(Re(eigen(m)$vectors[,1]))
+
+  mdev <- matrix(0,ord, ord)
+  for (i in 1:ord)   mdev[,i] <- abs(rank(-m[,i])-rank(-e))
+
+  PCM$pcm <- m
+  return(logicalPCM=PCM$pcm)
+}
+
 
 #' @title Saaty CR Consistency
 #'
-#' @description Computes and returns the Consistency Ratio (CR) for an input
-#' PCM and its boolean status of CR consistency
+#' @description Computes and returns the Consistency Ratio for an input
+#' PCM and its boolean status of consistency based on Consistency Ratio
+#'
+#' @param typePCM boolean flag indicating if the first argument is a PCM or a
+#' vector of upper triangular elements
 #' @param PCM A pairwise comparison matrix
-#' @returns A list of 3 elements, a boolean for the CR consistency of the
-#' input PCM, the CR consistency value and the principal eigenvector
+#'
+#' @returns A list of 3 elements, a boolean for the 'CR' consistency of the
+#' input 'PCM', the 'CR' consistency value and the principal eigenvector
 #' @importFrom stats runif
 #' @examples
 #' CR.pcm1 <- CR(matrix(
 #'                  c(1,1,7,1,1, 1,1,5,1,1/3, 1/7,1/5,1,1/7,1/8, 1,1,7,1,1,
 #'                  1,3,8,1,1), nrow=5, byrow=TRUE))
 #' CR.pcm1
+#' CR.pcm1a <- CR(c(1,7,1,1, 5,1,1/3, 1/7,1/8, 1), typePCM=FALSE)
+#' CR.pcm1a
 #' CR.pcm2 <- CR(matrix(
 #'                   c(1,1/4,1/4,7,1/5, 4,1,1,9,1/4, 4,1,1,8,1/4,
 #'                   1/7,1/9,1/8,1,1/9, 5,4,4,9,1), nrow=5, byrow=TRUE))
 #' CR.pcm2
+#' CR.pcm2a <- CR(c(1/4,1/4,7,1/5, 1,9,1/4, 8,1/4, 1/9),typePCM=FALSE)
+#' CR.pcm2a
 #' @export
-CR <- function(PCM) {
-  if (!is.matrix(PCM)) stop("Input is not a matrix")
-  if (nrow(PCM)!=ncol(PCM)) stop("Input is not a square matrix")
-  if (notPCM(PCM)) stop("Input is not a positive reciprocal matrix")
+CR <- function(PCM,typePCM=TRUE) {
+  if (!typePCM) {
+    if (!is.vector(PCM)) stop("Input is not a vector of pairwise ratios")
+    if (length(PCM)<3 | length(PCM)>66)
+      stop("Input vector is not of appropriate length for a
+           PCM of order 3 to 12")
+    PCM <- createPCM(PCM)
+    if (!is.matrix(PCM)) stop("Input vector does not have required values for
+                              all upper triangular elements")
+  } else {
+    if (!is.matrix(PCM)) stop("Input is not a matrix")
+    if (nrow(PCM)!=ncol(PCM)) stop("Input is not a square matrix")
+    if (nrow(PCM)==2 | nrow(PCM)>12) stop("Input matrix should be
+                                          of order 3 upto 12")
+    if (notPCM(PCM)) stop("Input is not a positive reciprocal matrix")
+  }
   CR <- ((Re(eigen(PCM)$values[1])-nrow(PCM))/(nrow(PCM)-1))/rin[nrow(PCM)]
   CR <- ifelse(abs(CR)<eps,0,CR)
   CRcons <- ifelse(CR<rth[nrow(PCM)],TRUE,FALSE)
@@ -77,13 +219,15 @@ CR <- function(PCM) {
   return(list(CRconsistent=CRcons, CR=CR, eVec=ev))
 }
 
-#' @title Improve a PCM's consistency
+#' @title Improve the CR consistency of a PCM
 #'
-#' @description For an input pairwise comparison matrix (PCM) that is
+#' @description For an input pairwise comparison matrix, PCM that is
 #' inconsistent, this function returns a consistent PCM if possible,
 #' with the relative preference for its alternatives as close as
 #' possible to the original preferences, as in the principal right eigenvector.
 #' @param PCM A pairwise comparison matrix
+#' @param typePCM boolean flag indicating if the first argument is a PCM or a
+#' vector of upper triangular elements
 #' @returns A list of 4 elements, suggested PCM, a boolean for the CR
 #' consistency of the input PCM, the CR consistency value, a boolean for the
 #' CR consistency of the suggested PCM, the CR consistency value of the
@@ -94,24 +238,39 @@ CR <- function(PCM) {
 #'                  c(1,1/4,1/4,7,1/5, 4,1,1,9,1/4, 4,1,1,8,1/4,
 #'                  1/7,1/9,1/8,1,1/9, 5,4,4,9,1), nrow=5, byrow=TRUE))
 #' CR.suggest2
+#' CR.suggest2a <- improveCR(c(1/4,1/4,7,1/5, 1,9,1/4, 8,1/4, 1/9),
+#' typePCM=FALSE)
+#' CR.suggest2a
 #' CR.suggest3 <- improveCR(matrix(
 #'                  c(1,7,1,9,8, 1/7,1,1/6,7,9, 1,6,1,9,9, 1/9,1/7,1/9,1,5,
 #'                  1/8,1/9,1/9,1/5,1), nrow=5, byrow=TRUE))
 #' CR.suggest3
 #' @export
-improveCR <- function(PCM) {
-  if (!is.matrix(PCM)) stop("Input is not a matrix")
-  if (nrow(PCM)!=ncol(PCM)) stop("Input is not a square matrix")
-  if (notPCM(PCM)) stop("Input is not a positive reciprocal matrix")
+improveCR <- function(PCM,typePCM=TRUE) {
+  if (!typePCM) {
+    if (!is.vector(PCM)) stop("Input is not a vector of pairwise ratios")
+    if (length(PCM)<3 | length(PCM)>66) stop("Input vector is not of
+                                             appropriate length for a PCM of
+                                             order 3 to 12")
+    PCM <- createPCM(PCM)
+    if (!is.matrix(PCM)) stop("Input vector does not have required values for
+                              all upper triangular elements")
+  } else {
+    if (!is.matrix(PCM)) stop("Input is not a matrix")
+    if (nrow(PCM)!=ncol(PCM)) stop("Input is not a square matrix")
+    if (nrow(PCM)==2 | nrow(PCM)>12) stop("Input matrix should be of order
+                                          3 upto 12")
+    if (notPCM(PCM)) stop("Input is not a positive reciprocal matrix")
+  }
   CR <- ((Re(eigen(PCM)$values[1])-nrow(PCM))/(nrow(PCM)-1))/rin[nrow(PCM)]
   CR <- ifelse(abs(CR)<eps,0,CR)
   CRcons <- ifelse(CR<rth[nrow(PCM)],TRUE,FALSE)
-  if (CRcons) stop("Input PCM is already CR consistent")
+  #if (CRcons) stop("Input PCM is already CR consistent")
   sPCM <- bestM(PCM)
   sCR <- ((Re(eigen(sPCM)$values[1])-nrow(sPCM))/(nrow(sPCM)-1))/rin[nrow(sPCM)]
   sCR <- ifelse(abs(sCR)<eps,0,sCR)
-  if(sCR > rin[nrow(sPCM)])
-    stop("Input PCM though not CR consistent cannot be improved")
+  #if(sCR > rin[nrow(sPCM)])
+  #  stop("Input PCM though not CR consistent cannot be improved")
   sCRcons <- ifelse(sCR<rth[nrow(sPCM)],TRUE,FALSE)
 
   return(list(suggestedPCM=sPCM, CR.originalConsistency=CRcons,
@@ -121,7 +280,7 @@ improveCR <- function(PCM) {
 #' @title Compute Sensitivity
 #'
 #' @description This function returns a sensitivity measure for an input
-#' pairwise comparison matrix (PCM). Sensitivity is measured by Monte Carlo
+#' pairwise comparison matrix, PCM. Sensitivity is measured by Monte Carlo
 #' simulation of 500 PCMs which are perturbations of the input PCM. The
 #' perturbation algorithm makes a random choice from one of the 5 closest
 #' items in the Fundamental Scale \{1/9, 1/8, ..... 1/2, 1, 2, ..... 8, 9\}
@@ -131,23 +290,37 @@ improveCR <- function(PCM) {
 #' (i) the input PCM and (ii) the perturbed PCM. The average of the 500 such
 #' rank correlations is reported as the measure of sensitivity.
 #' @param PCM A pairwise comparison matrix
+#' @param typePCM boolean flag indicating if the first argument is a PCM or a
+#' vector of upper triangular elements
 #' @returns The average Spearman's rank correlation between the principal
-#' eigenvectors of the input and the perturbed PCMs
+#' eigenvectors of the input and the perturbed 'PCMs'
 #' @importFrom stats runif
 #' @examples
-#' sensitivity1 <- sensitivity(matrix(
+#' revcons1 <- revisedConsistency(matrix(
 #'                  c(1,1/4,1/4,7,1/5, 4,1,1,9,1/4, 4,1,1,8,1/4,
 #'                  1/7,1/9,1/8,1,1/9, 5,4,4,9,1), nrow=5, byrow=TRUE))
-#' sensitivity1
+#' revcons1
 #' sensitivity2 <- sensitivity(matrix(
 #'                  c(1,7,1,9,8, 1/7,1,1/6,7,9, 1,6,1,9,9, 1/9,1/7,1/9,1,5,
 #'                  1/8,1/9,1/9,1/5,1), nrow=5, byrow=TRUE))
 #' sensitivity2
 #' @export
-sensitivity <- function(PCM) {
-  if (!is.matrix(PCM)) stop("Input is not a matrix")
-  if (nrow(PCM)!=ncol(PCM)) stop("Input is not a square matrix")
-  if (notPCM(PCM)) stop("Input is not a positive reciprocal matrix")
+sensitivity <- function(PCM,typePCM=TRUE) {
+  if (!typePCM) {
+    if (!is.vector(PCM)) stop("Input is not a vector of pairwise ratios")
+    if (length(PCM)<3 | length(PCM)>66) stop("Input vector is not of
+                                             appropriate length for a PCM of
+                                             order 3 to 12")
+    PCM <- createPCM(PCM)
+    if (!is.matrix(PCM)) stop("Input vector does not have required values for
+                              all upper triangular elements")
+  } else {
+    if (!is.matrix(PCM)) stop("Input is not a matrix")
+    if (nrow(PCM)!=ncol(PCM)) stop("Input is not a square matrix")
+    if (nrow(PCM)==2 | nrow(PCM)>12) stop("Input matrix should be of order
+                                          3 upto 12")
+    if (notPCM(PCM)) stop("Input is not a positive reciprocal matrix")
+  }
   ev0 <- abs(Re(eigen(PCM)$vectors[,1]))
   d0 <- rank(-ev0)
   cs <- 0
@@ -159,4 +332,59 @@ sensitivity <- function(PCM) {
   }
   meanCor <- cs / lim
   return(meanCor)
+}
+
+#' @title Evaluate Revised Consistency
+#'
+#' @description This function returns the revised consistency classification
+#' for a PCM, evaluated by comparison with the threshold of consistency for
+#' intentional PCMs in the same preference heterogeneity quartile. The measure
+#' for inconsistency is the geometric mean of ratios in comparison with the
+#' corresponding benchmark PCM.
+#'
+#' @param PCM A pairwise comparison matrix
+#' @param typePCM boolean flag indicating if the first argument is a PCM or a
+#' vector of upper triangular elements
+#' @returns A list of four elements,
+#' revCons = the revised consistency classification,
+#' inconGM = the Geometric Mean measure of inconsistency with the best 'PCM',
+#' dQrtl = the preference heterogeneity quartile for the normalized
+#' eigenvector, and diff = the preference heterogeneity measure
+#' @importFrom stats runif
+#' @examples
+#' revCon1 <- revisedConsistency(matrix(
+#'                  c(1,1/4,1/4,7,1/5, 4,1,1,9,1/4, 4,1,1,8,1/4,
+#'                  1/7,1/9,1/8,1,1/9, 5,4,4,9,1), nrow=5, byrow=TRUE))
+#' revCon1
+#' revCon2 <- revisedConsistency(c(7,1,9,8, 1/6,7,9, 9,9, 5), typePCM=FALSE)
+#' revCon2
+#' @export
+revisedConsistency <- function(PCM,typePCM=TRUE) {
+  if (!typePCM) {
+    if (!is.vector(PCM)) stop("Input is not a vector of pairwise ratios")
+    if (length(PCM)<3 | length(PCM)>66)
+      stop("Input vector is not of appropriate length for a PCM of
+           order 3 to 12")
+    PCM <- createPCM(PCM)
+    if (!is.matrix(PCM))
+      stop("Input vector does not have required values for all
+           upper triangular elements")
+  } else {
+    if (!is.matrix(PCM)) stop("Input is not a matrix")
+    if (nrow(PCM)!=ncol(PCM)) stop("Input is not a square matrix")
+    if (nrow(PCM)==2 | nrow(PCM)>12)
+      stop("Input matrix should be of order 3 upto 12")
+    if (notPCM(PCM)) stop("Input is not a positive reciprocal matrix")
+  }
+  evector <- abs(Re(eigen(PCM)$vectors[,1]))
+  evector <- evector/sum(evector)
+  diff <- max(evector)[1] - min(evector)[1]
+  d <- ec[ec$ord==nrow(PCM) & ec$type=='0D',2:5]
+  inc <- ec[ec$ord==nrow(PCM) & ec$type=='1C',2:5]
+  column <- min(which(d>diff))
+  inconsThreshold <- as.numeric(inc[column])
+  inconGM <- mDev(PCM, bestM(PCM))
+  dQrtl <- paste0("Q",column)
+  revCons <- inconGM <= inconsThreshold
+  return(list(revCons=revCons,inconGM=inconGM,dQrtl=dQrtl,diff=diff))
 }

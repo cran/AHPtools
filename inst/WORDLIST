@@ -1,8 +1,10 @@
 AHP
 PCM
+PCMs
 Saaty
-CR
-ord
-suggestPCM
-PCM's
-improveCR
+dQrtl
+inconGM
+quartile
+revCons
+revisedConsistency
+typePCM

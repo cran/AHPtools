@@ -4,18 +4,21 @@
 \alias{sensitivity}
 \title{Compute Sensitivity}
 \usage{
-sensitivity(PCM)
+sensitivity(PCM, typePCM = TRUE)
 }
 \arguments{
 \item{PCM}{A pairwise comparison matrix}
+
+\item{typePCM}{boolean flag indicating if the first argument is a PCM or a
+vector of upper triangular elements}
 }
 \value{
 The average Spearman's rank correlation between the principal
-eigenvectors of the input and the perturbed PCMs
+eigenvectors of the input and the perturbed 'PCMs'
 }
 \description{
 This function returns a sensitivity measure for an input
-pairwise comparison matrix (PCM). Sensitivity is measured by Monte Carlo
+pairwise comparison matrix, PCM. Sensitivity is measured by Monte Carlo
 simulation of 500 PCMs which are perturbations of the input PCM. The
 perturbation algorithm makes a random choice from one of the 5 closest
 items in the Fundamental Scale \{1/9, 1/8, ..... 1/2, 1, 2, ..... 8, 9\}
@@ -26,10 +29,10 @@ correlation of the vector of ranks of the principal eigenvectors of
 rank correlations is reported as the measure of sensitivity.
 }
 \examples{
-sensitivity1 <- sensitivity(matrix(
+revcons1 <- revisedConsistency(matrix(
                  c(1,1/4,1/4,7,1/5, 4,1,1,9,1/4, 4,1,1,8,1/4,
                  1/7,1/9,1/8,1,1/9, 5,4,4,9,1), nrow=5, byrow=TRUE))
-sensitivity1
+revcons1
 sensitivity2 <- sensitivity(matrix(
                  c(1,7,1,9,8, 1/7,1,1/6,7,9, 1,6,1,9,9, 1/9,1/7,1/9,1,5,
                  1/8,1/9,1/9,1/5,1), nrow=5, byrow=TRUE))
