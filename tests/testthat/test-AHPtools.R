@@ -146,4 +146,11 @@ test_that("errors", {
     revisedConsistency(c(1/4,1/4,7,1/5, 1,9,1/4, 8,1/4, 1/9),typePCM=FALSE)[1],
     c(TRUE, FALSE)
     )
+
+  testthat::expect_in(
+    revisedConsistency(c(9,1/9,3,1,1,1/4, 1/7,1/2,1/5,1/4,1/9, 6,5,2,1/9, 
+                        1/7,1/6,1/9, 1/7,1/8, 1/8),typePCM=FALSE)[1],
+    c(TRUE, FALSE)
+    )
+
 })

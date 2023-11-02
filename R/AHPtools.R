@@ -2,6 +2,8 @@ eps <- 0.0001
 rin <- c(0,0,0.52,0.89,1.11,1.25,1.35,1.40,1.45,1.49,1.52,1.54,1.56,1.58,1.59)
 rth <- c(0,0,0.05,0.09,rep(0.1,11))
 fs <- c(1/(9:1),2:9)
+# added 14.8.2023
+fs2 <- sort(unique(as.vector(outer(fs, fs, "/"))))
 lim <- 500
 lc2 <- lim*(lim-1)/2
 ord <- rep(3:12,each=2)
@@ -24,33 +26,42 @@ notPCM <- function(PCM) {
   return(FALSE)
 }
 
-bestM <- function(pcm) {
-  tSc <- c(1/(9:1),2:9)
+bestM <- function(pcm, granularityLow=TRUE) {
+  if (granularityLow==TRUE) {
+    opt <- fs
+  }  else {
+    opt <- fs2
+  }
+  #tSc <- c(1/(9:1),2:9)
   p <- pcm
   o <- nrow(pcm)
   bestMatrix <- diag(o)
   ep <- abs(Re(eigen(p)$vectors[,1]))
   for (r in 1:(o-1))
     for (c in (r+1):o) {
-      b <- tSc[which.min(abs(ep[r]/ep[c]-tSc))[1]]
+      b <- opt[which.min(abs(ep[r]/ep[c]-opt))[1]]
       bestMatrix[r, c] <- b
       bestMatrix[c, r] <- 1/b
     }
   return(bestMatrix)
 }
 
-
-randomPert <- function(val) {
-  r <- which(rank(abs(val-fs))<=5)
-  randomChoice <- fs[sample(r,1)]
+randomPert <- function(val, granularityLow) {
+  if (granularityLow==TRUE) {
+    opt <- fs
+  }  else {
+    opt <- fs2
+  }
+  r <- which(rank(abs(val-opt))<=5)
+  randomChoice <- opt[sample(r,1)]
   return(randomChoice)
 }
 
-perturb <- function(PCM) {
+perturb <- function(PCM, granularityLow=TRUE) {
   pertPCM <- diag(rep(1,nrow(PCM)))
   for (i in 1:(nrow(PCM)-1))
     for (j in (i+1):nrow(PCM)) {
-      r <- randomPert(PCM[i,j])
+      r <- randomPert(PCM[i,j], granularityLow)
       pertPCM[i,j] <- r
       pertPCM[j,i] <- 1/r
     }
@@ -116,13 +127,16 @@ createPCM <- function(vec) {
 #' @param ord The desired order of the Pairwise Comparison Matrix
 #' @param prefVec The preference vector of length as the order of the
 #' input matrix
+#' @param granularityLow The Scale for pairwise comparisons; default (TRUE)
+#' is the fundamental scale; else uses a more find grained scale, derived
+#' from pairwise ratios of the elements of the Fundamental Scale.
 #' @returns A Logical Pairwise Comparison Matrix
 #' @importFrom stats runif
 #' @examples
 #' lPCM <- createLogicalPCM(3,c(1,2,3));
 #' lPCM <- createLogicalPCM(5,c(0.25,0.4,0.1,0.05,0.2));
 #' @export
-createLogicalPCM <- function(ord, prefVec=rep(NA,ord)) {
+createLogicalPCM <- function(ord, prefVec=rep(NA,ord), granularityLow=TRUE) {
   if (is.na(ord)) stop("The first parameter is mandatory")
   if (!is.numeric(ord) || ord %% 1 != 0)
     stop("The first parameter has to be an integer")
@@ -130,19 +144,20 @@ createLogicalPCM <- function(ord, prefVec=rep(NA,ord)) {
     stop("The second parameter has to be a numeric vector")
   if (!all(is.na(prefVec)) && length(prefVec)!=ord)
     stop("The length of the second parameter has to be the same as the first")
-  opt <- c(1/(9:2),1:9)
+
+  if (granularityLow==TRUE) {
+    opt <- fs
+  }  else {
+    opt <- fs2
+  }
+  # opt <- ifelse(granularityLow,fs,fs2)
 
   if (is.na(prefVec[1]))
     prefVec <- runif(ord)
 
   mperfect <- outer(prefVec, prefVec, "/")
 
-  bestMat <- bestM(mperfect)
-  PCM <- list(ord=ord, orgVec=prefVec, ppcm=bestMat)
-
-  # creating a logical PCM from a consistent PCM (bestM)
-  m <-  PCM$ppcm
-  ord <- PCM$ord
+  m <- bestM(mperfect,  granularityLow)
   # now creating a logical PCM
   for (r in 1:(ord-1)) {
     for (c in (r+1):ord) {
@@ -160,13 +175,7 @@ createLogicalPCM <- function(ord, prefVec=rep(NA,ord)) {
       m[c,r] <- 1/m[r,c]
     }
   }
-  e <- Re(eigen(m)$vectors[,1])/sum(Re(eigen(m)$vectors[,1]))
-
-  mdev <- matrix(0,ord, ord)
-  for (i in 1:ord)   mdev[,i] <- abs(rank(-m[,i])-rank(-e))
-
-  PCM$pcm <- m
-  return(logicalPCM=PCM$pcm)
+  return(logicalPCM=m)
 }
 
 
@@ -292,6 +301,9 @@ improveCR <- function(PCM,typePCM=TRUE) {
 #' @param PCM A pairwise comparison matrix
 #' @param typePCM boolean flag indicating if the first argument is a PCM or a
 #' vector of upper triangular elements
+#' @param granularityLow The Scale for pairwise comparisons; default (TRUE)
+#' is the fundamental scale; else uses a more find grained scale, derived
+#' from pairwise ratios of the elements of the Fundamental Scale.
 #' @returns The average Spearman's rank correlation between the principal
 #' eigenvectors of the input and the perturbed 'PCMs'
 #' @importFrom stats runif
@@ -305,7 +317,7 @@ improveCR <- function(PCM,typePCM=TRUE) {
 #'                  1/8,1/9,1/9,1/5,1), nrow=5, byrow=TRUE))
 #' sensitivity2
 #' @export
-sensitivity <- function(PCM,typePCM=TRUE) {
+sensitivity <- function(PCM,typePCM=TRUE,granularityLow=TRUE) {
   if (!typePCM) {
     if (!is.vector(PCM)) stop("Input is not a vector of pairwise ratios")
     if (length(PCM)<3 | length(PCM)>66) stop("Input vector is not of
@@ -325,7 +337,7 @@ sensitivity <- function(PCM,typePCM=TRUE) {
   d0 <- rank(-ev0)
   cs <- 0
   for (i in 1:lim) {
-    c <- perturb(PCM)
+    c <- perturb(PCM, granularityLow)
     ev <- abs(Re(eigen(c)$vectors[,1]))
     d <- rank(-ev)
     cs <- cs + stats::cor(d0, d, method="spearman")
@@ -379,12 +391,23 @@ revisedConsistency <- function(PCM,typePCM=TRUE) {
   evector <- abs(Re(eigen(PCM)$vectors[,1]))
   evector <- evector/sum(evector)
   diff <- max(evector)[1] - min(evector)[1]
-  d <- ec[ec$ord==nrow(PCM) & ec$type=='0D',2:5]
+  d <- as.numeric(unname(ec[ec$ord==nrow(PCM) & ec$type=='0D',2:5]))
   inc <- ec[ec$ord==nrow(PCM) & ec$type=='1C',2:5]
-  column <- min(which(d>diff))
-  inconsThreshold <- as.numeric(inc[column])
-  inconGM <- mDev(PCM, bestM(PCM))
-  dQrtl <- paste0("Q",column)
-  revCons <- inconGM <= inconsThreshold
+  # The true part of this is statement added to solve
+  # the problem of min(which(d>diff)) not having any argument
+  if (max(d)[1]<diff) {
+    dQrtl <- "Q4"
+    inconGM <- mDev(PCM, bestM(PCM))
+    inconsThreshold <- as.numeric(inc[1])
+    revCons <- inconGM <= inconsThreshold
+  } else {
+    column <- min(which(d>diff))
+    # Need to add the below line to take care of PCMs with eigenvalue = 0
+    column <- ifelse(is.infinite(column),1,column)
+    inconsThreshold <- as.numeric(inc[column])
+    inconGM <- mDev(PCM, bestM(PCM))
+    dQrtl <- paste0("Q",column)
+    revCons <- inconGM <= inconsThreshold
+  }
   return(list(revCons=revCons,inconGM=inconGM,dQrtl=dQrtl,diff=diff))
 }

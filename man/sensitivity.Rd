@@ -4,13 +4,17 @@
 \alias{sensitivity}
 \title{Compute Sensitivity}
 \usage{
-sensitivity(PCM, typePCM = TRUE)
+sensitivity(PCM, typePCM = TRUE, granularityLow = TRUE)
 }
 \arguments{
 \item{PCM}{A pairwise comparison matrix}
 
 \item{typePCM}{boolean flag indicating if the first argument is a PCM or a
 vector of upper triangular elements}
+
+\item{granularityLow}{The Scale for pairwise comparisons; default (TRUE)
+is the fundamental scale; else uses a more find grained scale, derived
+from pairwise ratios of the elements of the Fundamental Scale.}
 }
 \value{
 The average Spearman's rank correlation between the principal

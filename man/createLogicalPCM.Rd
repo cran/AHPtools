@@ -5,13 +5,17 @@
 \title{Simulated Logical Pairwise Comparison Matrix for the
 Analytic Hierarchy Process}
 \usage{
-createLogicalPCM(ord, prefVec = rep(NA, ord))
+createLogicalPCM(ord, prefVec = rep(NA, ord), granularityLow = TRUE)
 }
 \arguments{
 \item{ord}{The desired order of the Pairwise Comparison Matrix}
 
 \item{prefVec}{The preference vector of length as the order of the
 input matrix}
+
+\item{granularityLow}{The Scale for pairwise comparisons; default (TRUE)
+is the fundamental scale; else uses a more find grained scale, derived
+from pairwise ratios of the elements of the Fundamental Scale.}
 }
 \value{
 A Logical Pairwise Comparison Matrix
