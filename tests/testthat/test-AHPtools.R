@@ -152,5 +152,32 @@ test_that("errors", {
                         1/7,1/6,1/9, 1/7,1/8, 1/8),typePCM=FALSE)[1],
     c(TRUE, FALSE)
     )
-
+  testthat::expect_gt(
+    consEval(matrix(c(1,1/6,1/5,1/2,1/6,1/3,1/3,1/8,  6,1,1,3,1,1,2,1,  5,1,1,3,1/3,1,2,1/2,
+                 2,1/3,1/3,1,1/5,1/2,1/2,1/4,  6,1,3,5,1,1,2,1,  3,1,1,2,1,1,1,1/3,
+                 3,1/2,1/2,2,1/2,1,1,1/4,  8,1,2,4,1,3,4,1), nrow=8, byrow=T))$logitConsistency,
+    0.9999
+    )
+  testthat::expect_gte(
+    consEval(createLogicalPCM(8))$logitConsistency,
+    0
+    )
+  testthat::expect_lte(
+    consEval(createLogicalPCM(5))$logitConsistency,
+    1.00
+    )
+  testthat::expect_gte(
+    consEval(createLogicalPCM(9))$max3Rev,
+    1
+    )
+  testthat::expect_null(
+    consEval(matrix(c(1,3,1/2,1,  1/3,1,1/7,1/4,  2,7,1,1,  1,4,1,1), 
+        nrow=4, byrow=T))$triadsData
+    )
+  testthat::expect_equal(
+    consEval(matrix(c(1,3,1/2,1,  1/3,1,1/7,1/4,  2,7,1,1,  1,4,1,1), 
+      nrow=4, byrow=T))$prop3Rev,
+    0
+    )
+  
 })

@@ -17,6 +17,8 @@ Q4 <- c(0.746,1.4,0.691,1.402,0.627,1.381,0.563,1.353,0.482,1.339,0.435,1.34,
         0.424,1.331,0.331,1.326,0.293,1.322,0.278,1.319)
 type <- rep(c('0D','1C'),10)
 ec <- data.frame(cbind(ord,Q1,Q2,Q3,Q4,type))
+logitCoefficients <- c(5.073699, 4.320408, -113.395213, -5.228240)
+logitModel <- matrix(logitCoefficients)
 
 notPCM <- function(PCM) {
   if (!setequal(diag(PCM),rep(1,nrow(PCM)))) return(TRUE)
@@ -410,4 +412,119 @@ revisedConsistency <- function(PCM,typePCM=TRUE) {
     revCons <- inconGM <= inconsThreshold
   }
   return(list(revCons=revCons,inconGM=inconGM,dQrtl=dQrtl,diff=diff))
+}
+
+reversals <- function(arr1, arr2) {
+  # arr1 : slice from parent
+  # arr2 : child
+  n <- length(arr1)
+  l <- list()
+
+  signRev <- list()
+  vrev <- list()
+  
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      r1 <- arr1[i]/arr1[j]; r2 <- arr2[i]/arr2[j]
+      revTrue <- ((r1 > 1) & (r2 < 1)) |  ((r1 < 1) & (r2 > 1))  # Reversal 
+      if (revTrue) {
+         k <- setdiff(names(arr1), c(names(arr1[i]), names(arr1[j])))
+         l <- append(l,list(c(arr1[i], arr1[j], arr1[k], arr2[i], arr2[j], arr2[k])))
+         vrev <- append(vrev,max(r1/r2, r2/r1))
+      }
+      
+    } # for j
+  }   # for i
+  return(list(vrev=vrev,rev=l))
+}
+
+#' @importFrom utils combn
+triadReversal <- function(PCM) {
+  df <- data.frame()
+  rownames(PCM) <- colnames(PCM) <- paste0("a",1:nrow(PCM))
+  ev <- abs(Re(eigen(PCM)$vectors[,1]))
+  evl <- Re(eigen(PCM)$values[1])
+  names(ev) <- colnames(PCM)
+  ch <- combn(1:nrow(PCM), 3)
+  for (i in 1:ncol(ch)) {
+    submatrix <- PCM[ch[,i], ch[,i]]
+    e <- Re(eigen(submatrix)$vectors[,1])
+    names(e) <- colnames(submatrix)
+    ev2 <- ev[names(e)]
+    inv <- reversals(ev2, e)
+
+    if (length(inv$vrev)>0) {
+      for (k in 1:length(inv$vrev)) {
+        df <- rbind(df, c(unlist(names(inv$rev[[k]]))[1:3],unlist(abs(inv$vrev[[k]])),unlist(abs(inv$rev[[k]]))))
+      }   # for (k in 1:length(inv$vrev))
+    }     # if (length(inv$vrev)>0)
+  }       # for (i in 1:ncol(ch))
+  if (nrow(df)>0) {
+    colnames(df) <- c("triadE1", "triadE2", "triadE3", "prefRev", "pcmWeightE1", "pcmWeightE2", "pcmWeightE3", "triadWeightE1", "triadWeightE2", "triadWeightE3")
+    for (numCol in 4:10) 
+      df[,numCol] <- as.numeric(df[,numCol])
+  } else
+    df <- NULL
+  return(df)
+}
+
+#' @title Find consistency of a PCM based on Preference Reversals
+#'
+#' @description This function finds all triad based preference reversals for a PCM.
+#' #' Triads are subsets of 3 elements chosen from the 'n' alternatives of an order-n
+#' PCM. A triad reversal is said to occur if any two elements of the order-3 PCM
+#' show a reversal in preference with the corresponding elements of the full eigenvector.
+#' 
+#' This returns a list of values related to triad Preference Reversal consistency.
+#' The fourth item of the list is a data frame of triads where reversals are seen,
+#' with the logit Consistency probability measure based on them, the proportion of
+#' reversals, the maximum reversal and the data frame with the details.
+#' @param pcm A pairwise comparison matrix
+#' @returns A list of four elements,
+#' logitConsistency = the probability that the PCM is consistent,
+#' prop3Rev = the proportion of triad-based preference reversals for the PCM,
+#' max3Rev = the maximum triad-based preference reversal for the PCM,
+#' triadsData = a data frame with 8 columns, providing the full data of preference reversals
+#'        (1) triadE1 alternative 1  in the triad; e.g. a4 for the fourth alternative
+#'        (2) triadE2 alternative 2 in the triad
+#'        (3) triadE3 alternative 3 in the triad
+#'        (4) pref3Rev measure of the intensity of preference reversal for the particular triad
+#'        (5) pcmWeightE1 eigen weight of alternative triadE1 from the entire eigenvector
+#'        (6) pcmWeightE2 eigen weight of alternative triadE2 from the entire eigenvector
+#'        (7) triadWeightE1 eigen weight of alternative triadE1 from the order-3 sub matrix
+#'        (8) triadWeightE2 eigen weight of alternative triadE2 from the order-3 sub matrix
+#' @examples
+#' pcm1 <- matrix(c(1,1,2,1,2,2, 1,1,1,1/3,1,1, 1/2,1,1,1,1,1, 1,3,1,1,2,1,
+#'                  1/2,1,1,1/2,1,1/4, 1/2,1,1,1,4,1), nrow=6, byrow=TRUE)
+#' cons1 <- consEval(pcm1)
+#' cons1
+#' pcm2 <- matrix(c(1,1/6,1/5,1/2,1/6,1/3,1/3,1/8,  6,1,1,3,1,1,2,1,
+#'                  5,1,1,3,1/3,1,2,1/2, 2,1/3,1/3,1,1/5,1/2,1/2,1/4,  
+#'                  6,1,3,5,1,1,2,1,  3,1,1,2,1,1,1,1/3,
+#'                  3,1/2,1/2,2,1/2,1,1,1/4,  8,1,2,4,1,3,4,1), 
+#'                  nrow=8, byrow=TRUE)
+#' cons2 <- consEval(pcm2)
+#' cons2
+#' pcm3 <- createLogicalPCM(7) 
+#' cons3 <- consEval(pcm3)
+#' print(paste(formatC(cons3$logitConsistency,format="e",digits=4), 
+#'          formatC(cons3$prop3Rev,format="f",digits=4), 
+#'          formatC(cons3$max3Rev,format="f", digits=4)))
+#' @export
+consEval <- function(pcm) {   # 7.7.24 logitModel added as a parameter
+  a <- triadReversal(pcm)
+  if (!is.null(a)) {
+    b <- data.frame(1, order=nrow(pcm), prop3Rev=nrow(a)/(choose(nrow(pcm),3)*3), max3Rev=max(a$prefRev))
+    # c <- predict(logitModel, newdata=b)
+    c <- as.numeric(as.matrix(b,nrow=1) %*% matrix(logitModel))
+    d <- 1/(1/exp(c) + 1)
+    logitConsistent <- ifelse(d>0.5,TRUE, FALSE)
+    triadsData <- a[,-c(7,10)]
+  } else {
+    d <- 1
+    b <- c(1,order=nrow(pcm),0,1)
+    triadsData <- NULL
+  }
+  #return(list(unname(d), unname(logitConsistent), unname(b[c2,3)]), a[,-c(7,10)]))
+  return(list(logitConsistency=unname(d), prop3Rev=as.numeric(b[3]), max3Rev=as.numeric(b[4]), triadsData=triadsData))
 }
