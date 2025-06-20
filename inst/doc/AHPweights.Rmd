@@ -1,0 +1,121 @@
+---
+title: "AHPweights: Calculate AHP weights"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AHPweights}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AHPtools)
+library(readxl)
+```
+
+# Introduction
+
+This vignette shows how to use the AHPweights() function to evaluate the weights of the lowest level subcriteria
+and, if available, that of the alternatives, from a hierarchical AHP structure read from a user-specified Excel file. 
+
+An example file is bundled with the package.
+
+## Step 1: Load the example AHP file
+
+```{r}
+file <- system.file("extdata", "example_transport.xlsx", package = "AHPtools")
+```
+
+## Step 2: Read the AHP structure
+
+We assume the AHP structure is in the "ahp" sheet.
+
+```{r}
+AHPstruc <- read_excel(file, sheet = "ahp")
+print(AHPstruc, n=Inf)
+```
+
+## Step 3: Read the PCMs
+
+Note that the PCMs for all the nodes in the sheet named ahp are to be represented in the Excel sheet named "pcm". Further, we there can be more than one respondent whose perceptions captured in PCMs are represented in separate rows of this sheet.
+
+As we can see, there are five `r length(unlist(AHPstruc$Node))` nodes, G, C1, C2, C3, C2.1, C2.3, C1.1, C1.2, C2.2, C3.1, C3.2, C2.1.1, C2.1.2, C2.3.1 and C2.3.2. For the node G there is a 3 by 3 PCM comparing the ordered children, C1, C2 and C3 from the Children_Ordered column. The PCM is represented by the three $\binom{3}{2}$ upper triangular elements of the matrix, and the corresponding columns take their names from the parent for these child nodes, G.1, G.2 an G.3
+
+Similarly, for the node C1, we have a 2 by 2 PCM comparing its child nodes C1.1 and C1.2 represented by $\binom{2}{2}$ = 1 entry named C1.1
+
+For the node C2, there are 3 columns which need to be named  which represent the upper triangular matrix for comparing C2.1, C2.2 and C2.3
+
+Note that it is just coincidental that there is a match between some of the node names and the names of the upper triangular matrix entries in the pcm sheet.
+
+The first row, shows the PCMs of the first respondent. There are three respondents whose responses can be seen below.
+
+```{r}
+pcm <- read_excel(file, sheet = "pcm")
+as.data.frame(pcm)
+```
+
+## Step 3: Create and View the AHP Tree
+
+This process is optional, and not mandatorily required for the process of AHP weight calculations.
+
+```{r}
+tree <- viewAHPtree(AHPstruc)
+```
+
+## Print the tree structure
+
+```{r}
+print(tree, "level", limit = NULL)
+```
+
+## Calculate the weights of the alternatives
+
+```{r}
+w <- AHPweights(file, "ahp", "pcm")
+alternatives_list <- lapply(w$AHPresult, function(x) x$alternatives)
+alternatives_list
+```
+
+## Calculate the global weights of the lowest level subcriteria
+
+```{r}
+weights_list <- lapply(w$AHPresult, function(x) x$weights)
+weights_list
+```
+
+## Another example
+
+It is not always that alternatives are compared in an AHP hierarchy - there could be situations when the user is interested in evaluating the weights of the subcriteria.
+
+The following example is one such.
+
+```{r}
+file <- system.file("extdata", "example_automobile.xlsx", package = "AHPtools")
+```
+
+## Calculate the global weights of the lowest level subcriteria
+
+```{r}
+w <- AHPweights(file, "AHP", "PCM")
+weights_list <- lapply(w$AHPresult, function(x) x$weights)
+weights_list
+```
+
+## Calculate the weights of the alternatives
+
+```{r}
+alternatives_list <- lapply(w$AHPresult, function(x) x$alternatives)
+alternatives_list
+```
+
+
+
+
+
+

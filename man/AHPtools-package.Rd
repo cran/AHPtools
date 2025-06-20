@@ -15,4 +15,8 @@ Useful links:
 }
 
 }
+\author{
+\strong{Maintainer}: Amarnath Bose \email{amarnath.bose@gmail.com} (\href{https://orcid.org/0000-0003-1560-6745}{ORCID})
+
+}
 \keyword{internal}

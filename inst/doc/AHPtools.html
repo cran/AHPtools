@@ -12,7 +12,7 @@
 
 
 
-<title>AHPtools</title>
+<title>Overview of AHPtools</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -336,11 +337,307 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">AHPtools</h1>
+<h1 class="title toc-ignore">Overview of AHPtools</h1>
 
 
 
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The <strong>AHPtools</strong> package facilitates the construction,
+analysis, and evaluation of <strong>Analytic Hierarchy Process
+(AHP)</strong> structures, particularly using pairwise comparison
+matrices.</p>
+<p>This vignette provides an overview of the package, its key functions,
+and links to more detailed vignettes.</p>
+</div>
+<div id="installation" class="section level1">
+<h1>Installation</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(AHPtools)</span></code></pre></div>
+</div>
+<div id="functions-in-ahptools-package" class="section level1">
+<h1>Functions in AHPtools package</h1>
+<div id="createpcm" class="section level2">
+<h2>createPCM</h2>
+<div id="purpose" class="section level3">
+<h3>Purpose</h3>
+<p>Creates a Pairwise Comparison Matrix of order n for Analytic
+Hierarchy Process from a vector of length <span class="math inline">\(\binom{n}{2}\)</span> comparison ratios</p>
+</div>
+<div id="usage-parameters" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>createPCM(vec)</p>
+<p>where</p>
+<ul>
+<li>vec is the preference vector of length equal to the order of the
+‘PCM’</li>
+</ul>
+</div>
+<div id="returns" class="section level3">
+<h3>Returns</h3>
+<p>A Pairwise Comparison Matrix corresponding to the upper triangular
+elements</p>
+<hr />
+</div>
+</div>
+<div id="createlogicalpcm" class="section level2">
+<h2>createLogicalPCM</h2>
+<div id="purpose-1" class="section level3">
+<h3>Purpose</h3>
+<p>Generates simulated logical Pairwise Comparison Matrix for the
+Analytic Hierarchy Process such as would be created by a rational
+decision maker based on a relative vector of preferences for the
+alternatives involved.</p>
+<p>Choices of the pairwise comparison ratios are from the Fundamental
+Scale and simulate a reasonable degree of error. The algorithm is
+modified from a paper by Bose, A [2022], </p>
+</div>
+<div id="usage-parameters-1" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>createLogicalPCM(ord, prefVec=rep(NA,ord))</p>
+<p>where</p>
+<ul>
+<li>ord The desired order of the Pairwise Comparison Matrix</li>
+<li>prefVec The preference vector of length as the order of the input
+matrix</li>
+</ul>
+</div>
+<div id="returns-1" class="section level3">
+<h3>Returns</h3>
+<hr />
+</div>
+</div>
+<div id="cr" class="section level2">
+<h2>CR</h2>
+<div id="purpose-2" class="section level3">
+<h3>Purpose</h3>
+<p>Computes the Saaty CR Consistency of a PCM</p>
+</div>
+<div id="usage-parameters-2" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>CR((PCM,typePCM=TRUE)</p>
+<p>where</p>
+<ul>
+<li>PCM A pairwise comparison matrix</li>
+<li>typePCM boolean flag indicating if the first argument is a PCM or a
+vector of upper triangular elements (default=TRUE)</li>
+</ul>
+</div>
+<div id="returns-2" class="section level3">
+<h3>Returns</h3>
+<p>A list of 3 elements,</p>
+<ul>
+<li>a boolean for the ‘CR’ consistency of the input ‘PCM’</li>
+<li>the ‘CR’ consistency value</li>
+<li>the principal eigenvector</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="improvecr" class="section level2">
+<h2>improveCR</h2>
+<div id="purpose-3" class="section level3">
+<h3>Purpose</h3>
+<p>Improves the CR consistency of a PCM.</p>
+<p>For an input pairwise comparison matrix, PCM that is inconsistent,
+this function returns a consistent PCM if possible, with the relative
+preference for its alternatives as close as possible to the original
+preferences, as in the principal right eigenvector</p>
+</div>
+<div id="usage-parameters-3" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>improveCR((PCM,typePCM=TRUE)</p>
+<p>where</p>
+<ul>
+<li>PCM A pairwise comparison matrix</li>
+<li>typePCM boolean flag indicating if the first argument is a PCM or a
+vector of upper triangular elements (default=TRUE)</li>
+</ul>
+</div>
+<div id="returns-3" class="section level3">
+<h3>Returns</h3>
+<p>A list of 4 elements,</p>
+<ul>
+<li>the improved PCM</li>
+<li>whether the input PCM is CR consistent (TRUE, FALSE)</li>
+<li>consistency raio of the input PCM</li>
+<li>whether the improved PCM is CR consistent (TRUE, FALSE)</li>
+<li>the CR consistency value of the improved PCM</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="sensitivity" class="section level2">
+<h2>sensitivity</h2>
+<div id="purpose-4" class="section level3">
+<h3>Purpose</h3>
+<p>Computes a sensitivity measure for an input pairwise comparison
+matrix, PCM.</p>
+<p>Sensitivity is measured by Monte Carlo simulation of 500 PCMs which
+are perturbations of the input PCM. The perturbation algorithm makes a
+random choice from one of the 5 closest items in the Fundamental Scale
+{1/9, 1/8, ….. 1/2, 1, 2, ….. 8, 9} for each element in the PCM,
+ensuring the the pairwise reciprocity is maintained. The sensitivity
+measure is the average Spearman’s rank correlation of the vector of
+ranks of the principal eigenvectors of (i) the input PCM and (ii) the
+perturbed PCM. The average of the 500 such rank correlations is reported
+as the measure of sensitivity.</p>
+</div>
+<div id="usage-parameters-4" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>sensitivity(PCM,typePCM=TRUE,granularityLow=TRUE)</p>
+<p>where</p>
+<ul>
+<li>PCM A pairwise comparison matrix</li>
+<li>typePCM boolean flag indicating if the first argument is a PCM or a
+vector of upper triangular elements (default=TRUE)</li>
+</ul>
+</div>
+<div id="returns-4" class="section level3">
+<h3>Returns</h3>
+<p>The average Spearman’s rank correlation between the principal
+eigenvectors of the input and 500 perturbed ‘PCMs’</p>
+<hr />
+</div>
+</div>
+<div id="revisedconsistency" class="section level2">
+<h2>revisedConsistency</h2>
+<div id="purpose-5" class="section level3">
+<h3>Purpose</h3>
+<p>This function returns the revised consistency classification for a
+PCM, evaluated by comparison with the threshold of consistency for
+intentional PCMs in the same preference heterogeneity quartile. The
+measure for inconsistency is the geometric mean of ratios in comparison
+with the corresponding benchmark PCM.</p>
+</div>
+<div id="usage-parameters-5" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>revisedConsistency(PCM,typePCM=TRUE)</p>
+<p>where</p>
+<ul>
+<li>PCM A pairwise comparison matrix</li>
+<li>typePCM boolean flag indicating if the first argument is a PCM or a
+vector of upper triangular elements</li>
+</ul>
+</div>
+<div id="returns-5" class="section level3">
+<h3>Returns</h3>
+<p>A list of four elements,</p>
+<ul>
+<li>revCons = the revised consistency classification,</li>
+<li>inconGM = the Geometric Mean measure of inconsistency with the best
+‘PCM’,</li>
+<li>dQrtl = the preference heterogeneity quartile for the
+normalized</li>
+<li>eigenvector, and diff = the preference heterogeneity measure</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="conseval" class="section level2">
+<h2>consEval</h2>
+<div id="purpose-6" class="section level3">
+<h3>Purpose</h3>
+<p>Finds the consistency of a PCM, a probabibility value based on a
+logit model, from triads based Preference Reversals for the input
+PCM</p>
+</div>
+<div id="usage-parameters-6" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>consEval(pcm)</p>
+<p>where</p>
+<ul>
+<li>pcm is a Pairwise Comparison Matrix</li>
+</ul>
+</div>
+<div id="returns-6" class="section level3">
+<h3>Returns</h3>
+<p>A list of four elements,</p>
+<ul>
+<li>logitConsistency = the probability that the PCM is consistent,</li>
+<li>prop3Rev = the proportion of triad-based preference reversals for
+the PCM,</li>
+<li>max3Rev = the maximum triad-based preference reversal for the
+PCM,</li>
+<li>triadsData = a data frame with 8 columns, providing the full data of
+preference reversals 1 triadE1 alternative 1 in the triad; e.g. a4 for
+the fourth alternative 2 triadE2 alternative 2 in the triad 3 triadE3
+alternative 3 in the triad 4 pref3Rev measure of the intensity of
+preference reversal for the particular triad 5 pcmWeightE1 eigen weight
+of alternative triadE1 from the entire eigenvector 6 pcmWeightE2 eigen
+weight of alternative triadE2 from the entire eigenvector 7
+triadWeightE1 eigen weight of alternative triadE1 from the order-3 sub
+matrix 8 triadWeightE2 eigen weight of alternative triadE2 from the
+order-3 sub matrix</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="viewahptree" class="section level2">
+<h2>viewAHPtree</h2>
+<div id="purpose-7" class="section level3">
+<h3>Purpose</h3>
+<p>Builds a hierarchical tree from a flat AHP representation.</p>
+</div>
+<div id="usage-parameters-7" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>viewTree(ahp)</p>
+<p>where</p>
+<ul>
+<li>ahp is the data frame from the ahp structure provided as an Excel
+sheet</li>
+</ul>
+</div>
+<div id="returns-7" class="section level3">
+<h3>Returns</h3>
+<p>A data tree object that can be viewed as a parent - child
+hierarchy</p>
+<hr />
+</div>
+</div>
+<div id="ahpweights" class="section level2">
+<h2>AHPweights</h2>
+<div id="purpose-8" class="section level3">
+<h3>Purpose</h3>
+<p>Compute weights for Alternatives and lowest level sub criteria in AHP
+responses</p>
+</div>
+<div id="usage-parameters-8" class="section level3">
+<h3>Usage / Parameters</h3>
+<p>AHPweights(ExcelPath, AHPsheet, PCMsheet)</p>
+<p>where</p>
+<ul>
+<li>ExcelPath for the Excel file containing the AHP structure and the
+required PCMs</li>
+<li>AHPsheet for the AHP structure, with three required columns, viz.
+<ul>
+<li>Column 1: Node: the node names for all nodes that have child
+nodes</li>
+<li>Column 2: Parent: the parent node for the Node in Column 1</li>
+<li>Column 3: Children_Ordered: the child nodes for the Node in Column
+1. these are comma separated strings, and correspond to the ordered
+upper triangular elements of the PCM in Sheet 2</li>
+</ul></li>
+<li>PCMsheet for the PCMs that are part of the AHP. The upper triangular
+matrix elements are provided for each PCM, so that a nxn PCM has
+n(n-1)/2 entries. These entries have column names starting with the AHP
+node name with respect to which the child elements are being compared,
+followed by a dot (.) and a sequence of numbers from 1 to n(n-1)/2 for
+the PCM elements</li>
+</ul>
+</div>
+<div id="returns-8" class="section level3">
+<h3>Returns</h3>
+<p>A list of two items,</p>
+<ol style="list-style-type: decimal">
+<li>AHPtree which is a printable tree object constructed from the
+user-provided AHP structure</li>
+<li>AHPresult the list of weights for the lowest level subcriteria, and
+weights of alternatives if exists</li>
+</ol>
+<hr />
+</div>
+</div>
+</div>
 
 
 

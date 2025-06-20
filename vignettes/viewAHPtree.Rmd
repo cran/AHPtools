@@ -1,0 +1,68 @@
+---
+title: "viewAHPtree: View an AHP tree"
+#output: pdf_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{viewAHPtree}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AHPtools)
+library(readxl)
+```
+
+# Introduction
+
+This vignette shows how to use the viewAHPtree() function to build a hierarchical AHP structure from an Excel file. The example file is bundled with the package.
+
+## Step 1: Load the example AHP file
+
+```{r}
+file <- system.file("extdata", "example_transport.xlsx", package = "AHPtools")
+```
+
+## Step 2: Read the AHP structure
+
+We assume the AHP structure is in the "ahp" sheet.
+
+```{r}
+AHPstruc <- read_excel(file, sheet = "ahp")
+print(AHPstruc, n=Inf)
+```
+
+## Step 3: Create the AHP Tree
+
+```{r}
+tree <- viewAHPtree(AHPstruc)
+```
+
+## Print the tree structure
+
+```{r}
+print(tree, "level", limit = NULL)
+```
+
+## Another example
+
+```{r}
+file <- system.file("extdata", "example_automobile.xlsx", package = "AHPtools")
+AHPstruc2 <- read_excel(file, sheet = "AHP")
+print(AHPstruc2, n=Inf)
+tree <- viewAHPtree(AHPstruc2)
+print(tree, "level", limit = NULL)
+```
+
+# Summary
+
+The viewAHPtree() function processes the input data to build the hierarchical structure of criteria and sub-criteria used in AHP. This vignette demonstrates loading the data and visualizing the tree structure.
+
+

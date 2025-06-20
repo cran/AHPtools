@@ -1,6 +1,8 @@
 ---
-title: "AHPtools"
+title: "Overview of AHPtools"
 output: rmarkdown::html_vignette
+#  toc: true
+#  toc_depth: 4
 vignette: >
   %\VignetteIndexEntry{AHPtools}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,6 +16,259 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Introduction
+
+The **AHPtools** package facilitates the construction, analysis, and evaluation of **Analytic Hierarchy Process (AHP)** structures, particularly using pairwise comparison matrices.
+
+This vignette provides an overview of the package, its key functions, and links to more detailed vignettes.
+
+# Installation
+
 ```{r setup}
 library(AHPtools)
 ```
+
+# Functions in AHPtools package
+
+## createPCM
+
+### Purpose
+
+Creates a Pairwise Comparison Matrix of order n for Analytic Hierarchy Process from a vector of length $\binom{n}{2}$ comparison ratios
+
+### Usage / Parameters
+
+createPCM(vec)
+
+where
+
+-  vec is the preference vector of length equal to the order of the 'PCM'
+
+### Returns
+
+A Pairwise Comparison Matrix corresponding to the upper triangular elements
+
+---
+
+## createLogicalPCM
+
+### Purpose
+
+Generates simulated logical Pairwise Comparison Matrix for the Analytic Hierarchy Process
+such as would be created by a rational decision maker based on a relative vector of preferences for the alternatives involved.
+
+Choices of the pairwise comparison ratios are from the Fundamental Scale and simulate a reasonable degree of error. The algorithm is modified from a paper by Bose, A [2022], \doi{https://doi.org/10.1002/mcda.1784}
+
+### Usage / Parameters
+
+createLogicalPCM(ord, prefVec=rep(NA,ord))
+
+where
+
+- ord The desired order of the Pairwise Comparison Matrix
+- prefVec The preference vector of length as the order of the input matrix
+
+### Returns
+
+---
+
+## CR
+
+### Purpose
+
+Computes the Saaty CR Consistency of a PCM
+
+### Usage / Parameters
+
+CR((PCM,typePCM=TRUE)
+
+where
+
+- PCM A pairwise comparison matrix
+- typePCM boolean flag indicating if the first argument is a PCM or a vector of upper triangular elements
+  (default=TRUE)
+
+
+### Returns
+
+A list of 3 elements, 
+
+- a boolean for the 'CR' consistency of the input 'PCM'
+- the 'CR' consistency value
+- the principal eigenvector
+
+---
+
+## improveCR
+
+### Purpose
+
+Improves the CR consistency of a PCM.
+
+For an input pairwise comparison matrix, PCM that is inconsistent, this function returns a consistent PCM if possible, with the relative preference for its alternatives as close as possible to the original preferences, as in the principal right eigenvector
+
+### Usage / Parameters
+
+improveCR((PCM,typePCM=TRUE)
+
+where
+
+- PCM A pairwise comparison matrix
+- typePCM boolean flag indicating if the first argument is a PCM or a vector of upper triangular elements
+  (default=TRUE)
+
+### Returns
+
+A list of 4 elements, 
+
+- the improved PCM
+- whether the input PCM is CR consistent (TRUE, FALSE)
+- consistency raio of the input PCM
+- whether the improved PCM is CR consistent (TRUE, FALSE)
+- the CR consistency value of the improved PCM
+
+---
+
+## sensitivity
+
+### Purpose
+
+Computes a sensitivity measure for an input pairwise comparison matrix, PCM. 
+
+Sensitivity is measured by Monte Carlo simulation of 500 PCMs which are perturbations of the input PCM. The perturbation algorithm makes a random choice from one of the 5 closest items in the Fundamental Scale \{1/9, 1/8, ..... 1/2, 1, 2, ..... 8, 9\} for each element in the PCM, ensuring the the pairwise reciprocity is maintained. The sensitivity measure is the average Spearman's rank correlation of the vector of ranks of the principal eigenvectors of (i) the input PCM and (ii) the perturbed PCM. 
+The average of the 500 such rank correlations is reported as the measure of sensitivity.
+
+### Usage / Parameters
+
+sensitivity(PCM,typePCM=TRUE,granularityLow=TRUE)
+
+where
+
+- PCM A pairwise comparison matrix
+- typePCM boolean flag indicating if the first argument is a PCM or a vector of upper triangular elements
+  (default=TRUE)
+
+### Returns
+
+The average Spearman's rank correlation between the principal eigenvectors of the input and 500 perturbed 'PCMs'
+
+---
+
+## revisedConsistency
+
+### Purpose
+
+This function returns the revised consistency classification for a PCM, evaluated by comparison with the threshold of consistency for intentional PCMs in the same preference heterogeneity quartile. The measure for inconsistency is the geometric mean of ratios in comparison with the corresponding benchmark PCM.
+
+### Usage / Parameters
+
+revisedConsistency(PCM,typePCM=TRUE)
+
+where
+
+- PCM A pairwise comparison matrix
+- typePCM boolean flag indicating if the first argument is a PCM or a vector of upper triangular elements
+
+### Returns
+
+A list of four elements,
+
+- revCons = the revised consistency classification,
+- inconGM = the Geometric Mean measure of inconsistency with the best 'PCM',
+- dQrtl = the preference heterogeneity quartile for the normalized
+- eigenvector, and diff = the preference heterogeneity measure
+
+---
+
+## consEval
+
+### Purpose
+
+Finds the consistency of a PCM, a probabibility value based on a logit model, from triads based Preference Reversals
+for the input PCM
+
+### Usage / Parameters
+
+consEval(pcm)
+
+where
+
+- pcm is a Pairwise Comparison Matrix
+
+### Returns
+
+A list of four elements,
+
+- logitConsistency = the probability that the PCM is consistent,
+- prop3Rev = the proportion of triad-based preference reversals for the PCM,
+- max3Rev = the maximum triad-based preference reversal for the PCM,
+- triadsData = a data frame with 8 columns, providing the full data of preference reversals
+  1 triadE1 alternative 1  in the triad; e.g. a4 for the fourth alternative
+  2 triadE2 alternative 2 in the triad
+  3 triadE3 alternative 3 in the triad
+  4 pref3Rev measure of the intensity of preference reversal for the particular triad
+  5 pcmWeightE1 eigen weight of alternative triadE1 from the entire eigenvector
+  6 pcmWeightE2 eigen weight of alternative triadE2 from the entire eigenvector
+  7 triadWeightE1 eigen weight of alternative triadE1 from the order-3 sub matrix
+  8 triadWeightE2 eigen weight of alternative triadE2 from the order-3 sub matrix
+  
+---
+
+## viewAHPtree
+
+### Purpose
+
+Builds a hierarchical tree from a flat AHP representation.
+
+### Usage / Parameters
+
+viewTree(ahp)
+
+where 
+
+- ahp is the data frame from the ahp structure provided as an Excel sheet
+
+### Returns
+
+A data tree object that can be viewed as a parent - child hierarchy 
+
+---
+
+## AHPweights
+
+### Purpose
+
+Compute weights for Alternatives and lowest level sub criteria in AHP responses
+
+### Usage / Parameters
+
+AHPweights(ExcelPath, AHPsheet, PCMsheet) 
+
+where
+
+- ExcelPath for the Excel file containing the AHP structure and the required PCMs
+- AHPsheet  for the AHP structure, with three required columns, viz.
+  - Column 1: Node:             the node names for all nodes that have child nodes 
+  - Column 2: Parent:           the parent node for the Node in Column 1
+  - Column 3: Children_Ordered: the child nodes for the Node in Column 1.
+                                these are comma separated strings, and correspond to the
+                                ordered upper triangular elements of the PCM in Sheet 2
+- PCMsheet  for the PCMs that are part of the AHP. The upper triangular matrix elements
+                  are provided for each PCM, so that a nxn PCM has n(n-1)/2 entries.
+                  These entries have column names starting with the AHP node name with
+                  respect to which the child elements are being compared, followed by a 
+                  dot (.) and a sequence of numbers from 1 to n(n-1)/2 for the PCM elements
+                  
+                  
+### Returns
+
+A list of two items,
+
+1.  AHPtree     which is a printable tree object constructed from the user-provided AHP structure
+2.  AHPresult   the list of weights for the lowest level subcriteria, and weights of alternatives 
+                if exists
+
+
+---
+
+

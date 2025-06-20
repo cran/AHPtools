@@ -179,5 +179,32 @@ test_that("errors", {
       nrow=4, byrow=T))$prop3Rev,
     0
     )
+  test_that("viewAHPtree builds expected tree", {
+    file <- system.file("extdata", "example_transport.xlsx", package = "AHPtools")
+  
+    # Read the Excel sheet
+    AHPstruc <- readxl::read_excel(file, sheet = "ahp")
+  
+    # Run the function
+    tree <- viewAHPtree(AHPstruc)
+  
+    # Basic checks
+    expect_s3_class(tree, "Node")
+    expect_equal(tree$name, "G")  # Assuming root is G
+    expect_true("C1" %in% tree$children[[1]]$name)
+    expect_equal(tree$leafCount, 36)
+  })
+  test_that("AHPweights computes weights for the AHP", {
+    file <- system.file("extdata", "example_automobile.xlsx", package = "AHPtools")
+  
+    AHP <- AHPweights(file, "AHP", "PCM")
+  
+    # Basic checks
+    expect_type(AHP, "list")
+    expect_equal(length(AHP), 2)  
+    expect_equal(length(AHP$AHPresult), 3)  
+    expect_true(is.na(AHP$AHPresult[[1]]$alternatives))
+    expect_equal(sum(AHP$AHPresult[[3]]$weights), 1)
+  })
   
 })

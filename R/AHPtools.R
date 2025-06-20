@@ -511,7 +511,7 @@ triadReversal <- function(PCM) {
 #'          formatC(cons3$prop3Rev,format="f",digits=4), 
 #'          formatC(cons3$max3Rev,format="f", digits=4)))
 #' @export
-consEval <- function(pcm) {   # 7.7.24 logitModel added as a parameter
+consEval <- function(pcm) {
   a <- triadReversal(pcm)
   if (!is.null(a)) {
     b <- data.frame(1, order=nrow(pcm), prop3Rev=nrow(a)/(choose(nrow(pcm),3)*3), max3Rev=max(a$prefRev))
@@ -527,4 +527,240 @@ consEval <- function(pcm) {   # 7.7.24 logitModel added as a parameter
   }
   #return(list(unname(d), unname(logitConsistent), unname(b[c2,3)]), a[,-c(7,10)]))
   return(list(logitConsistency=unname(d), prop3Rev=as.numeric(b[3]), max3Rev=as.numeric(b[4]), triadsData=triadsData))
+}
+
+#' @importFrom readxl read_excel
+readAHP <- function(excelFile, ahpSheet=1, pcmSheet=2) {
+  ahp <- read_excel(excelFile, sheet = ahpSheet)
+  pcm <- read_excel(excelFile, sheet = pcmSheet) 
+  return(list(ahp, pcm))
+}
+
+#' @keywords internal
+#' @noRd
+pcmCreate <- function(node, resp, ahpSh, pcmSh) {
+  grepStr <- paste("^",node,"\\.\\d+$", sep="")
+  utCols <- grep(grepStr, names(pcmSh))
+  pcm <- createPCM(unlist(pcmSh[resp,utCols]))
+  ev <- abs(Re(eigen(pcm)$vector[,1]))
+  ev <- ev/sum(ev)
+  names(ev) <- strsplit(unlist(ahpSh[ahpSh[,1]==node,3]), ",")[[1]]
+  return(ev)
+}
+
+#' @keywords internal
+#' @noRd
+ahpStructure <- function(df.ahp) {
+  ahp <- list()
+  for (i in 1:nrow(df.ahp)) {
+    chString = unname(unlist(df.ahp[i,"Children_Ordered"]))
+    ahp[[i]] <- list(
+      node = unname(unlist(df.ahp[i,"Node"])),
+      parent = unname(unlist(df.ahp[i,"Parent"])),
+      children = strsplit(chString,",")[[1]]
+    )
+  }
+  return(ahp)
+}
+
+#' @keywords internal
+#' @noRd
+# Recursive function to build the tree
+add_children <- function(current_node, current_name, ahp_list) {
+  # Find the matching node in ahp
+  node_entry <- Filter(function(x) x$node == current_name, ahp_list)
+  
+  # Safety: check if found
+  if (length(node_entry) == 0) return()
+  
+  children <- node_entry[[1]]$children
+  
+  # If children is a comma-separated string, split it
+  if (is.character(children) && length(children) == 1 && grepl(",", children)) {
+    children <- strsplit(children, ",")[[1]]
+  }
+  
+  # Add each child and recurse
+  for (child_name in children) {
+    child_node <- current_node$AddChild(child_name)
+    add_children(child_node, child_name, ahp_list)
+  }
+}
+
+
+#' Create AHP Tree Structure
+#'
+#' Builds a hierarchical tree from a flat AHP representation.
+#'
+#' @param ahp A data frame with the AHP structure including Node and Parent columns
+#'
+#' @returns A `Node` object (from the `data.tree` package) representing the full AHP tree
+#'
+#' @examples
+#' file <- system.file("extdata", "example_transport.xlsx", package = "AHPtools")
+#' AHPstruc <- readxl::read_excel(file, sheet = "ahp")
+#' tree <- viewAHPtree(AHPstruc)
+#' print(tree, "level", limit=NULL)
+#' @details
+#' For an overview and examples, please see the associated vignette:
+#' `vignette("viewAHPtree", package = "AHPtools")`
+#' @importFrom data.tree Node
+#' @export
+viewAHPtree <- function(ahp) {
+  ahpTree <- ahpStructure(ahp)
+  rootNode <- unname(unlist(ahp[is.na(ahp$Parent), "Node"]))
+  root <- Node$new(rootNode)
+  add_children(root, rootNode, ahpTree)
+  return(root)
+}
+
+
+#' @keywords internal
+#' @noRd
+validateAHP <- function(ahp, pcm) {
+  cols <- c()
+  for (i in 1:nrow(ahp)) {
+    node <- unlist(ahp[i,1])
+    children <- strsplit(unlist(ahp[i,3]), ",")
+    ut <- choose(length(unlist(children)),2)
+    cols <- c(cols, paste(node,1:ut, sep="."))
+  }
+  return(cols)
+}
+
+#' @title Compute weights for Alternatives and lowest level sub criteria in AHP responses
+#'
+#' @description This function reads an Excel file with two required Sheets, viz. 
+#' Sheet 1:  for the AHP structure, with three columns as follows:
+#' Sheet 2:  for the upper triangular elements of the PCMs that are part of the AHP hierarchy                          
+#' 
+#' This returns a list of two values:
+#'  (1) a printable AHP tree excluding the alternatives, if any
+#'  (2) the list of weights for the lowest level subcriteria, and weights of alternatives 
+#'            if exists
+#' @param ExcelPath for the Excel file containing the AHP structure and the required PCMs
+#' @param AHPsheet  for the AHP structure, with three required columns, viz.
+#' Column 1: Node:             the node names for all nodes that have child nodes 
+#' Column 2: Parent:           the parent node for the Node in Column 1
+#' Column 3: Children_Ordered: the child nodes for the Node in Column 1.
+#'                             these are comma separated strings, and correspond to the
+#'                             ordered upper triangular elements of the PCM in Sheet 2
+#' @param PCMsheet  for the PCMs that are part of the AHP. The upper triangular matrix elements
+#'                  are provided for each PCM, so that a nxn PCM has n(n-1)/2 entries.
+#'                  These entries have column names starting with the AHP node name with
+#'                  respect to which the child elements are being compared, followed by a 
+#'                  dot (.) and a sequence of numbers from 1 to n(n-1)/2 for the PCM elements
+#' @returns A list of two items,
+#' (i)  AHPtree     which is a printable tree object constructed from the user-provided AHP structure
+#' (ii) AHPresult   the list of weights for the lowest level subcriteria, and weights of alternatives 
+#'                  if exists
+#' @examples
+#' file <- system.file("extdata", "example_transport.xlsx", package = "AHPtools")
+#' results <- AHPweights(file, "ahp", "pcm")
+#' print(results)
+#' @details
+#' For an overview and examples, please see the associated vignette:
+#' `vignette("AHPweights", package = "AHPtools")`
+#' @export
+AHPweights <- function(ExcelPath, AHPsheet, PCMsheet) {   
+
+  ra <- readAHP(excelFile= ExcelPath, 
+                ahpSheet=AHPsheet, pcmSheet =PCMsheet)
+
+  cols <- validateAHP(ra[[1]], ra[[2]])
+  if (!identical(sort(cols),sort(colnames(ra[[2]])))) {
+    stop(paste("Column names mis-specified in header of ", PCMsheet, sep=""))
+    #valid <- FALSE
+  } 
+
+    ct <- viewAHPtree(ra[[1]])
+    
+    AHP_result <- list()
+    for (rsp in 1:nrow(ra[[2]]))  {
+      ra[[1]]$evec <- NA
+      ra[[1]]$lWeight <- NA
+      ra[[1]][is.na(ra[[1]]$Parent),"lWeight"] <- 1
+        for (node in unlist(ra[[1]]$Node)) {
+          pg <- pcmCreate(node,rsp, ra[[1]], ra[[2]])
+          parent <- unlist(ra[[1]][ra[[1]]$Node == names(pg)[1], "Parent"]) 
+          if (length(parent)>0) {
+            ra[[1]][ra[[1]]$Node == parent,]$evec <- list(pg)
+          } 
+          if (! names(pg)[1] %in% unlist(ra[[1]]$Node)) {
+            ra[[1]][ra[[1]]$Node == node,  ]$evec <- list(pg)
+          }
+          for (tnode in names(pg)) {
+            ra[[1]][ra[[1]]$Node==tnode, "lWeight"] <- pg[tnode]
+          }
+        }
+      
+      ra[[1]]$GWeight <- ra[[1]]$lWeight 
+      raFull <- ra[[1]]
+      
+      # Create Global Weights iteratively
+      nparent <- c(unname(unlist(raFull[is.na(raFull$Parent), "Node"])))
+      while (length(nparent)>0) {
+        n2parent <- c()
+        ra1 <- raFull[raFull$Parent %in% nparent,]
+        for (i in 1:nrow(ra1)) {
+          parent <- unlist(ra1[i,"Parent"])
+          if (parent %in% nparent) {
+              pweight <- raFull[raFull$Node==parent, "GWeight"]
+              nweight <- ra1[i, "GWeight"]
+              thisNode <- unlist(ra1[i,"Node"])
+              raFull[raFull$Node==thisNode, "GWeight"] <- nweight * pweight
+              n2parent <- c(n2parent, thisNode)
+          }
+        }
+        nparent <- unique(ra[[1]]$Parent[ra[[1]]$Parent %in% n2parent])
+      }
+      
+      level <- 0
+      raFull[is.na(raFull$Parent),"level"] <- level
+      lParents <- unique(unlist(raFull[is.na(raFull$Parent), "Node"]))
+      while (length(lParents)>0) {
+        level <- level + 1
+        raFull[raFull$Parent %in% lParents, "level"] <- level  
+        lParents <- unique(unlist(raFull[raFull$Parent %in% lParents,"Node"]))
+      }
+    
+      raFull$weights <- NA
+      for (i in 1:nrow(raFull)) {
+        raFull$weights[i] <- list(raFull$GWeight[i] * unlist(raFull$evec[i]))
+      }
+    
+      #flat <- unlist(raFull$weights[7:15])  # for Mathi data
+      flat <- unlist(raFull$weights)
+    
+      # Sum by names
+      result <- tapply(flat, names(flat), sum)
+    
+      # Which Nodes do not appear in the Parent list
+      # These are the bottom level nodes in the AHP
+      ch <- which(! raFull$Node %in% raFull$Parent)
+      leaves <- raFull$Node[ch]
+    
+      # These are the alternatives
+      alts <- c()
+      for (i in 1:nrow(raFull)) {
+        e <- names(unlist(raFull[i, "evec"]))
+        cleaned <- sub("^evec\\.", "", e)
+        alts <- c(alts, cleaned[! (cleaned %in% unlist(raFull$Node)) & ! (cleaned %in% alts)] )
+      }  
+    
+      n <- unlist(raFull$Node)
+      p <- unlist(raFull$Parent)
+      r <- names(result)
+      
+      alts <- names(table(names(flat))[table(names(flat))>1]) 
+      leaves <- setdiff(r,alts)
+      leaves <- if (length(alts)==0) setdiff(leaves,n) else setdiff(leaves,p)
+    
+      AHP_result[[rsp]] <- 
+         list(
+            weights = result[leaves],
+            alternatives = if (length(alts) > 0) result[alts] else NA
+          )
+    }  
+    return(list(AHPtree=ct, AHPresult=AHP_result))
 }
