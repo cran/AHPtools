@@ -2,7 +2,7 @@
 title: "AHPweights: Calculate AHP weights"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{AHPweights}
+  %\VignetteIndexEntry{AHPweights: Calculate AHP weights}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

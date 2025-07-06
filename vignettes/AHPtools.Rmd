@@ -4,10 +4,17 @@ output: rmarkdown::html_vignette
 #  toc: true
 #  toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{AHPtools}
+  %\VignetteIndexEntry{Overview of AHPtools}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+![](https://www.r-pkg.org/badges/version/AHPtools)
+![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)
+![](https://img.shields.io/badge/license-GPL--3-blue.svg)
+![](https://cranlogs.r-pkg.org/badges/AHPtools)
+![](https://cranlogs.r-pkg.org/badges/grand-total/AHPtools)
+
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(

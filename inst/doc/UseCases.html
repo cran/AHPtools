@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>AHPtools: UseCases</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+<style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">AHPtools: UseCases</h1>
+
+
+
+<p><img role="img" src="data:image/svg+xml; charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4NSIgaGVpZ2h0PSIyMCIgYXJpYS1sYWJlbD0iQ1JBTiAxLjAuMCI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxtYXNrIGlkPSJhIj4KICAgIDxyZWN0IHdpZHRoPSI4NSIgaGVpZ2h0PSIyMCIgcng9IjMiIGZpbGw9IiNmZmYiLz4KICA8L21hc2s+CiAgPGcgbWFzaz0idXJsKCNhKSI+CiAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDQzdjIwSDB6Ii8+CiAgICA8cGF0aCBmaWxsPSIjNGMxIiBkPSJNNDMgMGg2M3YyMEg0M3oiLz4KICAgIDxwYXRoIGZpbGw9InVybCgjYikiIGQ9Ik0wIDBoODV2MjBIMHoiLz4KICA8L2c+CiAgPGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICAgICBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICA8dGV4dCB4PSIyMS41IiB5PSIxNSIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+CiAgICAgIENSQU4KICAgIDwvdGV4dD4KICAgIDx0ZXh0IHg9IjIxLjUiIHk9IjE0Ij4KICAgICAgQ1JBTgogICAgPC90ZXh0PgogICAgPHRleHQgeD0iNjMiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj4KICAgICAgMS4wLjAKICAgIDwvdGV4dD4KICAgIDx0ZXh0IHg9IjYzIiB5PSIxNCI+CiAgICAgIDEuMC4wCiAgICA8L3RleHQ+CiAgPC9nPgo8L3N2Zz4=" /> <img role="img" src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5OCIgaGVpZ2h0PSIyMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJsaWZlY3ljbGU6IHN0YWJsZSI+PHRpdGxlPmxpZmVjeWNsZTogc3RhYmxlPC90aXRsZT48bGluZWFyR3JhZGllbnQgaWQ9InMiIHgyPSIwIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PC9saW5lYXJHcmFkaWVudD48Y2xpcFBhdGggaWQ9InIiPjxyZWN0IHdpZHRoPSI5OCIgaGVpZ2h0PSIyMCIgcng9IjMiIGZpbGw9IiNmZmYiLz48L2NsaXBQYXRoPjxnIGNsaXAtcGF0aD0idXJsKCNyKSI+PHJlY3Qgd2lkdGg9IjU1IiBoZWlnaHQ9IjIwIiBmaWxsPSIjNTU1Ii8+PHJlY3QgeD0iNTUiIHdpZHRoPSI0MyIgaGVpZ2h0PSIyMCIgZmlsbD0iIzRjMSIvPjxyZWN0IHdpZHRoPSI5OCIgaGVpZ2h0PSIyMCIgZmlsbD0idXJsKCNzKSIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMTAiPjx0ZXh0IGFyaWEtaGlkZGVuPSJ0cnVlIiB4PSIyODUiIHk9IjE1MCIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjQ1MCI+bGlmZWN5Y2xlPC90ZXh0Pjx0ZXh0IHg9IjI4NSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgZmlsbD0iI2ZmZiIgdGV4dExlbmd0aD0iNDUwIj5saWZlY3ljbGU8L3RleHQ+PHRleHQgYXJpYS1oaWRkZW49InRydWUiIHg9Ijc1NSIgeT0iMTUwIiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgdGV4dExlbmd0aD0iMzMwIj5zdGFibGU8L3RleHQ+PHRleHQgeD0iNzU1IiB5PSIxNDAiIHRyYW5zZm9ybT0ic2NhbGUoLjEpIiBmaWxsPSIjZmZmIiB0ZXh0TGVuZ3RoPSIzMzAiPnN0YWJsZTwvdGV4dD48L2c+PC9zdmc+" />
+<img role="img" src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5MCIgaGVpZ2h0PSIyMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJsaWNlbnNlOiBHUEwtMyI+PHRpdGxlPmxpY2Vuc2U6IEdQTC0zPC90aXRsZT48bGluZWFyR3JhZGllbnQgaWQ9InMiIHgyPSIwIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PC9saW5lYXJHcmFkaWVudD48Y2xpcFBhdGggaWQ9InIiPjxyZWN0IHdpZHRoPSI5MCIgaGVpZ2h0PSIyMCIgcng9IjMiIGZpbGw9IiNmZmYiLz48L2NsaXBQYXRoPjxnIGNsaXAtcGF0aD0idXJsKCNyKSI+PHJlY3Qgd2lkdGg9IjQ3IiBoZWlnaHQ9IjIwIiBmaWxsPSIjNTU1Ii8+PHJlY3QgeD0iNDciIHdpZHRoPSI0MyIgaGVpZ2h0PSIyMCIgZmlsbD0iIzAwN2VjNiIvPjxyZWN0IHdpZHRoPSI5MCIgaGVpZ2h0PSIyMCIgZmlsbD0idXJsKCNzKSIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMTAiPjx0ZXh0IGFyaWEtaGlkZGVuPSJ0cnVlIiB4PSIyNDUiIHk9IjE1MCIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjM3MCI+bGljZW5zZTwvdGV4dD48dGV4dCB4PSIyNDUiIHk9IjE0MCIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIGZpbGw9IiNmZmYiIHRleHRMZW5ndGg9IjM3MCI+bGljZW5zZTwvdGV4dD48dGV4dCBhcmlhLWhpZGRlbj0idHJ1ZSIgeD0iNjc1IiB5PSIxNTAiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiIHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB0ZXh0TGVuZ3RoPSIzMzAiPkdQTC0zPC90ZXh0Pjx0ZXh0IHg9IjY3NSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgZmlsbD0iI2ZmZiIgdGV4dExlbmd0aD0iMzMwIj5HUEwtMzwvdGV4dD48L2c+PC9zdmc+" /> <img role="img" src="data:image/svg+xml; charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDkiIGhlaWdodD0iMjAiIGFyaWEtbGFiZWw9IkNSQU4gZG93bmxvYWRzIDQ5OC9tb250aCI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxtYXNrIGlkPSJhIj4KICAgIDxyZWN0IHdpZHRoPSIxNDkiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+CiAgPC9tYXNrPgogIDxnIG1hc2s9InVybCgjYSkiPjxwYXRoIGZpbGw9IiM1NTUiIGQ9Ik0wIDBoNzB2MjBIMHoiLz4KICAgIDxwYXRoIGZpbGw9IiMwMDdlYzYiIGQ9Ik03MCAwaDc5djIwSDcweiIvPgogICAgPHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGgxNDl2MjBIMHoiLz4KICA8L2c+CiAgPGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICAgICBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICA8dGV4dCB4PSIzNiIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPgogICAgICBkb3dubG9hZHMKICAgIDwvdGV4dD4KICAgIDx0ZXh0IHg9IjM2IiB5PSIxNCI+CiAgICAgIGRvd25sb2FkcwogICAgPC90ZXh0PgogICAgPHRleHQgeD0iMTA4LjUiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj4KICAgICAgNDk4L21vbnRoCiAgICA8L3RleHQ+CiAgICA8dGV4dCB4PSIxMDguNSIgeT0iMTQiPgogICAgICA0OTgvbW9udGgKICAgIDwvdGV4dD4KICA8L2c+Cjwvc3ZnPg==" /> <img role="img" src="data:image/svg+xml; charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDgiIGhlaWdodD0iMjAiIGFyaWEtbGFiZWw9IkNSQU4gZG93bmxvYWRzIDEzSyI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxtYXNrIGlkPSJhIj4KICAgIDxyZWN0IHdpZHRoPSIxMDgiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIi8+CiAgPC9tYXNrPgogIDxnIG1hc2s9InVybCgjYSkiPjxwYXRoIGZpbGw9IiM1NTUiIGQ9Ik0wIDBoNzB2MjBIMHoiLz4KICAgIDxwYXRoIGZpbGw9IiMwMDdlYzYiIGQ9Ik03MCAwaDM4djIwSDcweiIvPgogICAgPHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGgxMDh2MjBIMHoiLz4KICA8L2c+CiAgPGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIKICAgICBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICA8dGV4dCB4PSIzNiIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPgogICAgICBkb3dubG9hZHMKICAgIDwvdGV4dD4KICAgIDx0ZXh0IHg9IjM2IiB5PSIxNCI+CiAgICAgIGRvd25sb2FkcwogICAgPC90ZXh0PgogICAgPHRleHQgeD0iODgiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj4KICAgICAgMTNLCiAgICA8L3RleHQ+CiAgICA8dGV4dCB4PSI4OCIgeT0iMTQiPgogICAgICAxM0sKICAgIDwvdGV4dD4KICA8L2c+Cjwvc3ZnPg==" /></p>
+<p><code>AHPtools</code> was primarily developed as an aid to
+research.</p>
+<p>The functions in the AHPtools package are:</p>
+<ul>
+<li>CR</li>
+<li>createPCM</li>
+<li>createRandomPCM</li>
+<li>createLogicalPCM</li>
+<li>sensitivity</li>
+<li>improveCR</li>
+<li>revisedConsistency</li>
+<li>consEval</li>
+<li>viewAHPtree</li>
+<li>AHPweights</li>
+</ul>
+<p>In the following sections are some illustrative use cases of the
+<code>AHPtools</code> package. The Consistency Ratio (CR) based, extant
+consistency measure has been shown by several researchers to have
+serious limitations. <code>AHPtools</code> provides a compendium of
+functions that could help research on consistency in the AHP.</p>
+<div id="section" class="section level3">
+<h3></h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># if (!requireNamespace(&quot;AHPtools&quot;, quietly = TRUE)) {</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#     install.packages(&quot;AHPtools&quot;)</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(AHPtools)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#devtools::load_all(&quot;.&quot;)</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">suppressWarnings</span>(<span class="fu">suppressMessages</span>(<span class="fu">library</span>(tidyverse)))</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">suppressWarnings</span>(<span class="fu">suppressMessages</span>(<span class="fu">library</span>(dplyr)))</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">suppressWarnings</span>(<span class="fu">suppressMessages</span>(<span class="fu">library</span>(knitr)))</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">suppressWarnings</span>(<span class="fu">suppressMessages</span>(<span class="fu">library</span>(kableExtra)))</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
+<p>The list of functions with the function signatures can be
+obtained:</p>
+<table>
+<colgroup>
+<col width="22%" />
+<col width="77%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Function_Name</th>
+<th align="left">Function_Signature</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">createRandomPCM</td>
+<td align="left">function (PCMsize) NULL</td>
+</tr>
+<tr class="even">
+<td align="left">sensitivity</td>
+<td align="left">function (PCM, typePCM = TRUE, granularityLow = TRUE)
+NULL</td>
+</tr>
+<tr class="odd">
+<td align="left">viewAHPtree</td>
+<td align="left">function (ahp) NULL</td>
+</tr>
+<tr class="even">
+<td align="left">revisedConsistency</td>
+<td align="left">function (PCM, typePCM = TRUE) NULL</td>
+</tr>
+<tr class="odd">
+<td align="left">AHPweights</td>
+<td align="left">function (ExcelPath, AHPsheet, PCMsheet) NULL</td>
+</tr>
+<tr class="even">
+<td align="left">createLogicalPCM</td>
+<td align="left">function (ord, prefVec = rep(NA, ord), granularityLow =
+TRUE) NULL</td>
+</tr>
+<tr class="odd">
+<td align="left">createPCM</td>
+<td align="left">function (vec) NULL</td>
+</tr>
+<tr class="even">
+<td align="left">CR</td>
+<td align="left">function (PCM, typePCM = TRUE) NULL</td>
+</tr>
+<tr class="odd">
+<td align="left">consEval</td>
+<td align="left">function (pcm) NULL</td>
+</tr>
+<tr class="even">
+<td align="left">improveCR</td>
+<td align="left">function (PCM, typePCM = TRUE) NULL</td>
+</tr>
+</tbody>
+</table>
+<p>The manual for any function, e.g. <code>CR</code>, can be pulled out
+from CRAN using the following R command.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">help</span>(<span class="st">&quot;CR&quot;</span>, <span class="at">package=</span><span class="st">&quot;AHPtools&quot;</span>)</span></code></pre></div>
+</div>
+<div id="section-1" class="section level3">
+<h3></h3>
+</div>
+<div id="use-case-nugget-1-logical-pcms-and-reliable-consistency-thresholds" class="section level2">
+<h2>Use Case Nugget 1: Logical PCMs and Reliable Consistency
+Thresholds</h2>
+<!-- createLogicalPCM, createRandomPCM -->
+<p>The Consistency Ratio is used as a measure of consistency for a PCM
+in the AHP.</p>
+<p>Random PCMs were used by Saaty to construct these thresholds,
+specifically to construct the Random Indices for various orders. This is
+one of the main reasons why consistency evaluation is biased and often
+flawed.</p>
+<p>Needless to say Random PCMs are hardly consistent. The possibility of
+a PCM meeting the CR consistency threshold reduces with increase in the
+order of the PCM. Testing the CR consistency thresholds on simulated
+logical PCMs is demonstrated in this Research Nugget. Logical PCMs such
+as are assigned by human users are more likely to be representative
+candidates for benchmarking PCM consistency thresholds.</p>
+<p>Consistency Ratios of simulated <code>logical PCMs</code> and
+simulated <code>random PCMs</code> for various orders are compared. In
+the following code snippet, 100 PCMs of each order for both the
+categories are simulated and the CR values are captured.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>runs <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">3</span><span class="sc">:</span><span class="dv">12</span>, <span class="at">each=</span><span class="dv">100</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(runs, <span class="cf">function</span>(x) <span class="fu">CR</span>(<span class="fu">createRandomPCM</span>(x))<span class="sc">$</span>CR))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="fu">lapply</span>(runs, <span class="cf">function</span>(x) <span class="fu">CR</span>(<span class="fu">createLogicalPCM</span>(x)))</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>Lcr <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(L, <span class="cf">function</span>(x) x<span class="sc">$</span>CR))</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>Lcons <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(L, <span class="cf">function</span>(x) x<span class="sc">$</span>CRconsistent))</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>exp1DF <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Order=</span>runs,<span class="at">Random.PCM=</span>R,<span class="at">Logical.PCM=</span>Lcr,<span class="at">Inconsistent=</span><span class="sc">!</span>Lcons)</span></code></pre></div>
+<p>We can get the order-wise mean CRs for the two categories of PCM, as
+follows.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(dplyr))</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>summaryExp1 <span class="ot">&lt;-</span> exp1DF <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Order) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Random.PCM=</span><span class="fu">mean</span>(Random.PCM), <span class="at">Logical.PCM=</span><span class="fu">mean</span>(Logical.PCM)<span class="sc">*</span><span class="dv">100</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>            <span class="st">&quot;Logical PCMs&quot;</span><span class="ot">=</span><span class="fu">mean</span>(Inconsistent))</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>summaryExp1<span class="sc">$</span>Random.PCM <span class="ot">&lt;-</span> <span class="fu">round</span>(summaryExp1<span class="sc">$</span>Random.PCM,<span class="dv">3</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>summaryExp1<span class="sc">$</span>Logical.PCM <span class="ot">&lt;-</span> <span class="fu">round</span>(summaryExp1<span class="sc">$</span>Logical.PCM,<span class="dv">3</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>summaryExp1<span class="sc">$</span><span class="st">`</span><span class="at">Logical PCMs</span><span class="st">`</span> <span class="ot">&lt;-</span> <span class="fu">round</span>(summaryExp1<span class="sc">$</span><span class="st">`</span><span class="at">Logical PCMs</span><span class="st">`</span>,<span class="dv">2</span>) </span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">kable</span>(summaryExp1) <span class="sc">%&gt;%</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="fu">c</span>(<span class="st">&quot; &quot;</span><span class="ot">=</span><span class="dv">1</span>, <span class="st">&quot;Average CR of 100&quot;</span><span class="ot">=</span><span class="dv">2</span>, <span class="st">&quot;% Inconsistent&quot;</span><span class="ot">=</span><span class="dv">1</span>), <span class="at">line=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style>
+Average CR of 100
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
+<div style>
+% Inconsistent
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:right;">
+Order
+</th>
+<th style="text-align:right;">
+Random.PCM
+</th>
+<th style="text-align:right;">
+Logical.PCM
+</th>
+<th style="text-align:right;">
+Logical PCMs
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.927
+</td>
+<td style="text-align:right;">
+4.158
+</td>
+<td style="text-align:right;">
+0.31
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1.023
+</td>
+<td style="text-align:right;">
+3.769
+</td>
+<td style="text-align:right;">
+0.08
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1.033
+</td>
+<td style="text-align:right;">
+3.759
+</td>
+<td style="text-align:right;">
+0.04
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1.039
+</td>
+<td style="text-align:right;">
+3.542
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0.995
+</td>
+<td style="text-align:right;">
+3.467
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.980
+</td>
+<td style="text-align:right;">
+3.747
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+1.020
+</td>
+<td style="text-align:right;">
+3.769
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+1.001
+</td>
+<td style="text-align:right;">
+3.830
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+1.003
+</td>
+<td style="text-align:right;">
+3.313
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.996
+</td>
+<td style="text-align:right;">
+3.788
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+</tbody>
+</table>
+<p>It is obvious that for <code>logically constructed PCMs</code> the CR
+threshold is far too liberal and would possibly result in large number
+of false positives - i.e.  inconsistent PCMs being adjudged to be
+consistent.</p>
+<p>Corroborating this is the empirical observation of the proportion of
+logical PCMs for each order that are CR inconsistent. The numbers are
+less than 5% for orders greater than 4. For order 3 however, 31% of PCMs
+are CR inconsistent.</p>
+<p>Given that the logically constructed PCMs are representative of
+expert assigned PCMs, this highlights a possible gap in consistency
+evaluation using the CR method.</p>
+<div id="section-2" class="section level3">
+<h3></h3>
+</div>
+</div>
+<div id="use-case-nugget-2-consistency-ratio-limitations-in-consistency-enhancement" class="section level2">
+<h2>Use Case Nugget 2: Consistency Ratio Limitations in Consistency
+Enhancement</h2>
+<p>Given the criticality of consistency there have been several methods
+to enhance the consistency of a PCM. One of the earliest of these was
+due to Harker.</p>
+<p>The function <code>improveCR</code> takes any PCM as input and using
+Harker’s method repeatedly, attempts to bring the CR to an acceptable
+value.</p>
+<p>This research nugget highlights a drawback in forcing the CR to a
+value that is deemed consistent. The principal eigenvector of a PCM
+indicates the relative importance of the alternatives. Improving
+consistency by focusing on errant pairwise ratios in isolation often
+changes the overall preferences for the alternatives.</p>
+<p>The code in this section illustrates this by simulating 5 random PCMs
+of order 7 each, and then using <code>improveCR</code> to bring the CR
+to an acceptable consistency level.</p>
+<p>We also show, for each random PCM, the original CR value and the
+number of inversions or preference rank changes among the resultant
+principal eigenvector elements of the original PCM and the improved PCM.
+First we write a function to compute the number of inversions.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>count_inversions <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  rx <span class="ot">&lt;-</span> <span class="fu">rank</span>(x)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  ry <span class="ot">&lt;-</span> <span class="fu">rank</span>(y)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">length</span>(rx)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  inversions <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(n <span class="sc">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>    <span class="cf">for</span> (j <span class="cf">in</span> (i <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>n) {</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>      <span class="co"># Check if pair order differs between the two vectors</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>      <span class="cf">if</span> ((rx[i] <span class="sc">-</span> rx[j]) <span class="sc">*</span> (ry[i] <span class="sc">-</span> ry[j]) <span class="sc">&lt;</span> <span class="dv">0</span>) {</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>        inversions <span class="ot">&lt;-</span> inversions <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>      }</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    }</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  }</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  <span class="fu">return</span>(inversions)</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">93</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>ind <span class="ot">&lt;-</span> type <span class="ot">&lt;-</span> ConsistencyRatio <span class="ot">&lt;-</span> inverts <span class="ot">&lt;-</span> vecRanks <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>oCR <span class="ot">&lt;-</span> iCR <span class="ot">&lt;-</span> cinv <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) {</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  p1 <span class="ot">&lt;-</span> <span class="fu">createRandomPCM</span>(<span class="dv">9</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  imp <span class="ot">&lt;-</span> <span class="fu">improveCR</span>(p1)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  ind <span class="ot">&lt;-</span> <span class="fu">c</span>(ind, i)</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="co">#type &lt;- c(type, c(&quot;Original&quot;, &quot;Improved&quot;, &quot;&quot;))</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  oCR <span class="ot">&lt;-</span> <span class="fu">c</span>(oCR, <span class="fu">round</span>(imp<span class="sc">$</span>CR.original,<span class="dv">4</span>))</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  iCR <span class="ot">&lt;-</span> <span class="fu">c</span>(iCR, <span class="fu">round</span>(imp<span class="sc">$</span>suggestedCR,<span class="dv">4</span>))  </span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  spcm <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">Re</span>(<span class="fu">eigen</span>(imp<span class="sc">$</span>suggestedPCM)<span class="sc">$</span>vectors[,<span class="dv">1</span>]))</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  opcm <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">Re</span>(<span class="fu">eigen</span>(p1)<span class="sc">$</span>vectors[,<span class="dv">1</span>]))</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  cinv <span class="ot">&lt;-</span> <span class="fu">c</span>(cinv, <span class="fu">count_inversions</span>(opcm, spcm))</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>  <span class="co"># cat(c(&quot;Iteration&quot;, i, &quot;: &quot;, ConsistencyRatio, &quot;Inversions=&quot;, count_inversions(opcm, spcm), &quot;\n&quot;))</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="co"># inverts &lt;- c(inverts, c(imp$inversions, &quot; &quot;, &quot;&quot;))  </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  <span class="co"># vecRanks &lt;- c(vecRanks, c(imp$oriRank, imp$impRank, &quot;&quot;))</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>}</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(ind, oCR, iCR, cinv)</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="fu">kable</span>(df, <span class="at">linesep=</span><span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> <span class="fu">kable_styling</span>(<span class="at">position =</span> <span class="st">&quot;center&quot;</span>)  </span></code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+ind
+</th>
+<th style="text-align:right;">
+oCR
+</th>
+<th style="text-align:right;">
+iCR
+</th>
+<th style="text-align:right;">
+cinv
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.7806
+</td>
+<td style="text-align:right;">
+0.0089
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1.1202
+</td>
+<td style="text-align:right;">
+0.0039
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.7915
+</td>
+<td style="text-align:right;">
+0.0062
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.8970
+</td>
+<td style="text-align:right;">
+0.0089
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1.0941
+</td>
+<td style="text-align:right;">
+0.0091
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1.1280
+</td>
+<td style="text-align:right;">
+0.0096
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+1.0388
+</td>
+<td style="text-align:right;">
+0.0117
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+1.0681
+</td>
+<td style="text-align:right;">
+0.0124
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.9050
+</td>
+<td style="text-align:right;">
+0.0108
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.8999
+</td>
+<td style="text-align:right;">
+0.0124
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+</tbody>
+</table>
+<p>It is seen that while the CR value has been drastically improved, the
+ranks for the alternatives have changed as indicated by the number of
+inversions in 3 out of the 5 simulated random PCMs.</p>
+<div id="section-3" class="section level3">
+<h3></h3>
+</div>
+</div>
+<div id="use-case-nugget-3-a-simple-sensitivity-measure-for-a-pcm" class="section level2">
+<h2>Use Case Nugget 3: A simple sensitivity measure for a PCM</h2>
+<p>The function <code>sensitivity</code> perturbs the upper triangular
+elements of a PCM to a random selection from the set of the nearest five
+elements in the Fundamental Scale. The lower triangular elements are
+reciprocals of the corresponding upper triangular elements. 500
+perturbations of a PCM are made.</p>
+<p>The rank of the alternatives as in the principal eigen vector of the
+original PCM denotes the aggregated preference order for the
+alternatives.</p>
+<p>The rank of the alternatives in each of the 500 perturbed PCMs is
+rank correlated with that of the original input PCM. The average of the
+500 rank correlations is an indicator of the stability / sensitivity of
+the input PCM.</p>
+<p>The nearer this measure is to 1 the less sensitive is the PCM,
+indicating greater consistency. Conversely, the lesser this measure is
+the greater are the indications of inconsistency.</p>
+<p>As a proof-of-concept of the claim in the last paragraph, we shall
+simulate 10 each <code>random</code> and <code>logical</code> PCMs each
+of orders 5, 7 and 9. Random PCMs are expected to be less consistent
+than logical PCMs. This implies that the average sensitivity score
+should be lower for <code>random PCMs</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>runs <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">9</span>), <span class="at">each=</span><span class="dv">20</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(runs, <span class="cf">function</span>(x) <span class="fu">sensitivity</span>(<span class="fu">createRandomPCM</span>(x))))</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(runs, <span class="cf">function</span>(x) <span class="fu">sensitivity</span>(<span class="fu">createLogicalPCM</span>(x))))</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>exp2DF <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Order=</span>runs,<span class="at">Random.PCM=</span>R,<span class="at">Logical.PCM=</span>L)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>exp2DF <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Order) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">R=</span><span class="fu">mean</span>(Random.PCM), <span class="at">L=</span><span class="fu">mean</span>(Logical.PCM), <span class="at">Rs=</span><span class="fu">sd</span>(Random.PCM), <span class="at">Ls=</span><span class="fu">sd</span>(Logical.PCM))</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 5</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;   Order     R     L     Rs    Ls</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 1     5 0.847 0.737 0.0976 0.283</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; 2     7 0.870 0.733 0.0539 0.157</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; 3     9 0.857 0.726 0.0853 0.137</span></span></code></pre></div>
+<div id="section-4" class="section level3">
+<h3></h3>
+</div>
+</div>
+<div id="use-case-nugget-4-preference-reversals-as-an-indicator-of-inconsistency" class="section level2">
+<h2>Use Case Nugget 4: Preference Reversals as an indicator of
+inconsistency</h2>
+<!-- triadConsistency, triadReversal -->
+<p>In this function all different triads of elements of a PCM are
+chosen. Triads are subsets of 3 elements chosen from the <code>n</code>
+alternatives of an order-n PCM. A triad reversal is said to occur if any
+two elements of the eigen vector of an order-3 PCM show a reversal in
+preference when compared to the corresponding elements of the entire
+eigen vector.</p>
+<p>An example to illustrate this follows.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>  pcmVec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">8</span>,  <span class="dv">1</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">6</span>, <span class="dv">3</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  pcm <span class="ot">&lt;-</span> <span class="fu">createPCM</span>(pcmVec)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">colnames</span>(pcm) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(pcm) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;a1&#39;</span>, <span class="st">&#39;a2&#39;</span>, <span class="st">&#39;a3&#39;</span>, <span class="st">&#39;a4&#39;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  pcm</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;    a1        a2        a3        a4</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; a1  1 0.3333333 0.5000000 0.1250000</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; a2  3 1.0000000 1.0000000 0.1666667</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; a3  2 1.0000000 1.0000000 3.0000000</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; a4  8 6.0000000 0.3333333 1.0000000</span></span></code></pre></div>
+<p>The eigen vector of this PCM is ( 0.1231476, 0.2772163, 0.6444789,
+0.701878 ).</p>
+<p>The triad reversals for this PCM can be obtained as follows.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>  <span class="co">#trdf &lt;- triadReversal(pcm)</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  trdf <span class="ot">&lt;-</span> <span class="fu">consEval</span>(pcm)<span class="sc">$</span>triadsData</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  trdf</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;   triadE1 triadE2 triadE3  prefRev pcmWeightE1 pcmWeightE2 triadWeightE1</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 1      a2      a3      a1 2.661258   0.2772163   0.6444789     0.7238135</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 2      a3      a4      a1 1.427076   0.6444789   0.7018780     0.7832404</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 3      a3      a4      a2 1.246666   0.6444789   0.7018780     0.7238135</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   triadWeightE2</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; 1     0.6323093</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 2     0.5977243</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 3     0.6323093</span></span></code></pre></div>
+<p>This PCM has 3 triad reversals indicated by the 3 rows displayed
+above.</p>
+<p>Let us examine the first row displayed. It shows that the triad PCM
+constructed by taking the row-columns corresponding to a2, a3, a1 has a
+preference reversal of 2.661258.</p>
+<p>The following code segment displays this PCM.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>  pcm3Vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>, <span class="dv">2</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  pcm3 <span class="ot">&lt;-</span> <span class="fu">createPCM</span>(pcm3Vec)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="fu">colnames</span>(pcm3) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(pcm3) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;a2&#39;</span>, <span class="st">&#39;a3&#39;</span>, <span class="st">&#39;a1&#39;</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  pcm3</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;           a2  a3 a1</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; a2 1.0000000 1.0  3</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; a3 1.0000000 1.0  2</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; a1 0.3333333 0.5  1</span></span></code></pre></div>
+<p>The eigen vector of this triad PCM is ( 0.7238135, 0.6323093,
+0.2761865 ).</p>
+<p>The corresponding principal eigenvector elements for a2, a3 from the
+original order-4 PCM are 0.2772163, 0.6444789. For a2 and a3 the triadE1
+and triadE2 elements have values 0.2772163 and 0.6444789.</p>
+<p>The corresponding values for a2, a3 for the triad PCM are 0.7238135,
+0.6323093.</p>
+<p>There is a preference reversal in this triad because the preference
+ratio for a2:a3, is more than 1 for one of the comparisons and less for
+the other.</p>
+<div id="preference-a2a3-considering-the-entire-order-4-pcm" class="section level3">
+<h3>Preference a2:a3 considering the entire order-4 PCM</h3>
+<p>As per the eigen vector of the entire order-4 PCM, the preference
+ratio of a2:a3 is 0.2772163 / 0.6444789 = 0.4301402, indicating a higher
+preference for a3 compared to a2.</p>
+</div>
+<div id="preference-a2a3-considering-the-triad-pcm-a2-a3-a1" class="section level3">
+<h3>Preference a2:a3 considering the triad PCM (a2, a3, a1)</h3>
+<p>When we consider the triad a2, a3, a1 - row 1 of the data displayed -
+we see that the preference for a2 vis-a-vis a3, is 0.7238135 / 0.6323093
+= 1.1447143, indicating a higher preference for a2 compared to a3.</p>
+</div>
+<div id="reversal-in-preference-between-a3-and-a3" class="section level3">
+<h3>Reversal in preference between a3 and a3</h3>
+<p>This reversal in preference is counter-intuitive and indicative of
+inconsistency. The measure of intensity of the reversal is taken to
+be</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>  <span class="fu">max</span>(<span class="fl">0.4301402</span><span class="sc">/</span><span class="fl">1.1447143</span>, <span class="fl">1.1447143</span><span class="sc">/</span><span class="fl">0.4301402</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; [1] 2.661259</span></span></code></pre></div>
+<p>as in the first row of the triad reversals data displayed.</p>
+<p>Similarly, considering all possible triads - there are <span class="math inline">\(\binom{4}{3}\)</span> triads possible - we see
+that there are three preference reversals, of values</p>
+<div id="section-5" class="section level5">
+<h5></h5>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>trdf[,<span class="dv">4</span>]</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; [1] 2.661258 1.427076 1.246666</span></span></code></pre></div>
+<p>Triads form the smallest units prone to inconsistency - a tuple is
+never inconsistent because transverse elements in a pairwise comparison
+matrix are reciprocals of one another. For an order <code>n</code> PCM
+there are <span class="math inline">\(\binom{n}{3}\)</span> possible
+triads, and for each triad there are <span class="math inline">\(\binom{3}{2}=3\)</span> pairs which can have
+preference reversals.</p>
+<p>Thus, for an order-<code>n</code> PCM the maximum possible number of
+preference reversals is <span class="math inline">\(3 \times
+\binom{n}{3}\)</span>.</p>
+<p>In this example we see that there are 3 preference reversals out of a
+maximum possible of <span class="math inline">\(3 \times
+\binom{4}{3}\)</span> = 12, with a maximum intensity of 2.661259 between
+<code>a2</code> and <code>a3</code> considering <code>a1</code> as the
+third element in the triad.</p>
+<p>The <code>AHPtools</code> package also has a function
+<code>triadConsistency</code> which summarises the results of observed
+reversals for any given PCM.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">consEval</span>(pcm)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; $logitConsistency</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt; [1] 2.261657e-09</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; $prop3Rev</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; [1] 0.25</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; $max3Rev</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; [1] 2.661258</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; $triadsData</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt;   triadE1 triadE2 triadE3  prefRev pcmWeightE1 pcmWeightE2 triadWeightE1</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; 1      a2      a3      a1 2.661258   0.2772163   0.6444789     0.7238135</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; 2      a3      a4      a1 1.427076   0.6444789   0.7018780     0.7832404</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; 3      a3      a4      a2 1.246666   0.6444789   0.7018780     0.7238135</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt;   triadWeightE2</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt; 1     0.6323093</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt; 2     0.5977243</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; 3     0.6323093</span></span></code></pre></div>
+<p>The <code>$triadsData</code> is a list of all preference reversals
+observed and we have already seen this as an output of
+<code>triadReversal(pcm)</code>. We have already observed that there are
+3 preference reversals out of a maximum possible 12. This gives the
+value of <code>consEval(pcm)$prop3Rev</code>.</p>
+<p>Similarly, the maximum preference reversal is given by
+<code>consEval(pcm)$max3Rev</code> and is 2.661258 as we have already
+seen.</p>
+<p>The <code>consEval(pcm)$logitConsistency</code> value is an indicator
+of the consistency of the PCM. On a scale of 0 to 1, this value
+indicates that the PCM is highly likely to be inconsistent.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -3,7 +3,7 @@ title: "viewAHPtree: View an AHP tree"
 #output: pdf_document
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{viewAHPtree}
+  %\VignetteIndexEntry{viewAHPtree: View an AHP tree}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

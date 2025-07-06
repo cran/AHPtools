@@ -33,10 +33,6 @@ correlation of the vector of ranks of the principal eigenvectors of
 rank correlations is reported as the measure of sensitivity.
 }
 \examples{
-revcons1 <- revisedConsistency(matrix(
-                 c(1,1/4,1/4,7,1/5, 4,1,1,9,1/4, 4,1,1,8,1/4,
-                 1/7,1/9,1/8,1,1/9, 5,4,4,9,1), nrow=5, byrow=TRUE))
-revcons1
 sensitivity2 <- sensitivity(matrix(
                  c(1,7,1,9,8, 1/7,1,1/6,7,9, 1,6,1,9,9, 1/9,1/7,1/9,1,5,
                  1/8,1/9,1/9,1/5,1), nrow=5, byrow=TRUE))

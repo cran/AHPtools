@@ -1,0 +1,365 @@
+---
+title: "AHPtools: UseCases"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AHPtools: UseCases}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+![](https://www.r-pkg.org/badges/version/AHPtools)
+![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)
+![](https://img.shields.io/badge/license-GPL--3-blue.svg)
+![](https://cranlogs.r-pkg.org/badges/AHPtools)
+![](https://cranlogs.r-pkg.org/badges/grand-total/AHPtools)
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`AHPtools` was primarily developed as an aid to research. 
+
+The functions in the AHPtools package are:
+
+- CR
+- createPCM
+- createRandomPCM
+- createLogicalPCM
+- sensitivity
+- improveCR
+- revisedConsistency
+- consEval
+- viewAHPtree
+- AHPweights
+
+In the following sections are some illustrative use cases of the `AHPtools` package.
+The Consistency Ratio (CR) based, extant consistency measure has been shown by several
+researchers to have serious limitations. `AHPtools` provides a compendium of functions
+that could help research on consistency in the AHP.
+
+###
+
+```{r}
+# if (!requireNamespace("AHPtools", quietly = TRUE)) {
+#     install.packages("AHPtools")
+# }
+library(AHPtools)
+
+#devtools::load_all(".")
+suppressWarnings(suppressMessages(library(tidyverse)))
+suppressWarnings(suppressMessages(library(dplyr)))
+suppressWarnings(suppressMessages(library(knitr)))
+suppressWarnings(suppressMessages(library(kableExtra)))
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(dplyr)
+```
+
+The list of functions with the function signatures can be obtained:
+```{r echo=FALSE}
+# Load the package namespace
+ns <- asNamespace("AHPtools")
+
+# Get the exported functions
+exported <- getNamespaceExports("AHPtools")
+
+# Get the function signatures
+exported_functions <- mget(exported, envir = ns, ifnotfound = NA)
+exported_functions <- exported_functions[sapply(exported_functions, is.function)]
+
+# Print the function names and signatures
+fnnm <- c(); fnsg <- c()
+for (func_name in names(exported_functions)) {
+  fnnm <- c(fnnm, func_name)
+  fnsg <- c(fnsg, paste(deparse(args(exported_functions[[func_name]])),collapse=""))
+}
+# for (func_name in names(exported_functions)) {
+#   cat(func_name, ":\t")
+#   cat(str(args(exported_functions[[func_name]])))
+# }
+tbl <- data.frame("Function_Name"=fnnm, "Function_Signature"=fnsg)
+kable(tbl)
+```
+
+The manual for any function, e.g. `CR`, can be pulled out from CRAN using the following R command.
+```{r}
+help("CR", package="AHPtools")
+```
+
+### 
+
+## Use Case Nugget 1: Logical PCMs and Reliable Consistency Thresholds
+<!-- createLogicalPCM, createRandomPCM -->
+
+The Consistency Ratio is used as a measure of consistency for a PCM in the AHP. 
+
+Random PCMs were used by Saaty to construct these thresholds, specifically to construct the Random Indices for various orders.
+This is one of the main reasons why consistency evaluation is biased and often flawed. 
+
+Needless to say Random PCMs are hardly consistent. The possibility of a PCM meeting the CR consistency threshold reduces
+with increase in the order of the PCM. Testing the CR consistency thresholds on simulated logical PCMs is demonstrated in this
+Research Nugget. Logical PCMs such as are assigned by human users are more likely to be representative candidates for benchmarking
+PCM consistency thresholds.
+
+Consistency Ratios of simulated `logical PCMs` and simulated `random PCMs` for various orders are compared. 
+In the following code snippet, 100 PCMs of each order for both the categories are simulated and the CR values are captured.
+
+```{r message=F, warning=F, exp1}
+runs <- rep(3:12, each=100)
+R <- unlist(lapply(runs, function(x) CR(createRandomPCM(x))$CR))
+L <- lapply(runs, function(x) CR(createLogicalPCM(x)))
+Lcr <- unlist(lapply(L, function(x) x$CR))
+Lcons <- unlist(lapply(L, function(x) x$CRconsistent))
+exp1DF <- data.frame(Order=runs,Random.PCM=R,Logical.PCM=Lcr,Inconsistent=!Lcons)
+```
+We can get the order-wise mean CRs for the two categories of PCM, as follows.
+
+```{r, message=FALSE}
+suppressPackageStartupMessages(library(dplyr))
+summaryExp1 <- exp1DF %>% group_by(Order) %>% 
+  summarise(Random.PCM=mean(Random.PCM), Logical.PCM=mean(Logical.PCM)*100,
+            "Logical PCMs"=mean(Inconsistent))
+summaryExp1$Random.PCM <- round(summaryExp1$Random.PCM,3)
+summaryExp1$Logical.PCM <- round(summaryExp1$Logical.PCM,3)
+summaryExp1$`Logical PCMs` <- round(summaryExp1$`Logical PCMs`,2) 
+
+kable(summaryExp1) %>%
+  add_header_above(c(" "=1, "Average CR of 100"=2, "% Inconsistent"=1), line=FALSE)
+```
+
+It is obvious that for `logically constructed PCMs` the CR threshold is far 
+too liberal and would possibly result in large number of false positives - i.e. 
+inconsistent PCMs being adjudged to be consistent.
+
+Corroborating this is the empirical observation of the proportion of logical 
+PCMs for each order that are CR inconsistent. The numbers are less than 5\% for 
+orders greater than 4. For order 3 however, `r summaryExp1[1,4]*100`% of PCMs 
+are CR inconsistent.
+
+Given that the logically constructed PCMs are representative of expert assigned 
+PCMs, this highlights a possible gap in consistency evaluation using the CR method.
+
+### 
+
+## Use Case Nugget 2: Consistency Ratio Limitations in Consistency Enhancement
+
+Given the criticality of consistency there have been several methods to enhance 
+the consistency of a PCM. One of the earliest of these was due to Harker. 
+
+The function `improveCR` takes any PCM as input and using Harker's method
+repeatedly, attempts to bring the CR to an acceptable value.
+
+This research nugget highlights a drawback in forcing the CR to a value that is 
+deemed consistent. The principal eigenvector of a PCM indicates the relative 
+importance of the alternatives. Improving consistency by focusing on errant 
+pairwise ratios in isolation often changes the overall preferences for the 
+alternatives.
+
+The code in this section illustrates this by simulating 5 random PCMs of order 7 
+each, and then using `improveCR` to bring the CR to an acceptable consistency level.
+
+We also show, for each random PCM, the original CR value and the number of inversions
+or preference rank changes among the resultant principal eigenvector elements of the
+original PCM and the improved PCM. First we write a function to compute the number
+of inversions.
+
+```{r, helper function}
+count_inversions <- function(x, y) {
+  rx <- rank(x)
+  ry <- rank(y)
+  n <- length(rx)
+  inversions <- 0
+
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      # Check if pair order differs between the two vectors
+      if ((rx[i] - rx[j]) * (ry[i] - ry[j]) < 0) {
+        inversions <- inversions + 1
+      }
+    }
+  }
+
+  return(inversions)
+}
+```
+
+
+```{r}
+set.seed(93)
+ind <- type <- ConsistencyRatio <- inverts <- vecRanks <- c()
+oCR <- iCR <- cinv <- c()
+for (i in 1:10) {
+  p1 <- createRandomPCM(9)
+  imp <- improveCR(p1)
+  ind <- c(ind, i)
+  #type <- c(type, c("Original", "Improved", ""))
+  oCR <- c(oCR, round(imp$CR.original,4))
+  iCR <- c(iCR, round(imp$suggestedCR,4))  
+  spcm <- abs(Re(eigen(imp$suggestedPCM)$vectors[,1]))
+  opcm <- abs(Re(eigen(p1)$vectors[,1]))
+  cinv <- c(cinv, count_inversions(opcm, spcm))
+  # cat(c("Iteration", i, ": ", ConsistencyRatio, "Inversions=", count_inversions(opcm, spcm), "\n"))
+  # inverts <- c(inverts, c(imp$inversions, " ", ""))  
+  # vecRanks <- c(vecRanks, c(imp$oriRank, imp$impRank, ""))
+}
+df <- data.frame(ind, oCR, iCR, cinv)
+kable(df, linesep=FALSE) %>% kable_styling(position = "center")  
+```
+
+It is seen that while the CR value has been drastically improved, the ranks for
+the alternatives have changed as indicated by the number of inversions in 3 out 
+of the 5 simulated random PCMs.
+
+###
+
+## Use Case Nugget 3: A simple sensitivity measure for a PCM
+
+The function `sensitivity` perturbs the upper triangular elements of a PCM to a
+random selection from the set of the nearest five elements in the Fundamental Scale. 
+The lower triangular elements are reciprocals of the corresponding upper triangular
+elements. 500 perturbations of a PCM are made.
+
+The rank of the alternatives as in the principal eigen vector of the original PCM
+denotes the aggregated preference order for the alternatives.
+
+The rank of the alternatives in each of the 500 perturbed PCMs is rank correlated
+with that of the original input PCM. The average of the 500 rank correlations is
+an indicator of the stability / sensitivity of the input PCM.
+
+The nearer this measure is to 1 the less sensitive is the PCM, indicating greater
+consistency. Conversely, the lesser this measure is the greater are the indications
+of inconsistency.
+
+As a proof-of-concept of the claim in the last paragraph, we shall simulate
+10 each `random` and `logical` PCMs each of orders 5, 7 and 9. 
+Random PCMs are expected to be less consistent than logical PCMs. This implies
+that the average sensitivity score should be lower for `random PCMs`.
+
+```{r}
+runs <- rep(c(5,7,9), each=20)
+R <- unlist(lapply(runs, function(x) sensitivity(createRandomPCM(x))))
+L <- unlist(lapply(runs, function(x) sensitivity(createLogicalPCM(x))))
+exp2DF <- data.frame(Order=runs,Random.PCM=R,Logical.PCM=L)
+exp2DF %>% group_by(Order) %>% summarise(R=mean(Random.PCM), L=mean(Logical.PCM), Rs=sd(Random.PCM), Ls=sd(Logical.PCM))
+
+```
+
+
+### 
+
+## Use Case Nugget 4: Preference Reversals as an indicator of inconsistency
+<!-- triadConsistency, triadReversal -->
+
+In this function all different triads of elements of a PCM are chosen. Triads 
+are subsets of 3 elements chosen from the `n` alternatives of an order-n PCM. 
+A triad reversal is said to occur if any two elements of the eigen vector of 
+an order-3 PCM show a reversal in preference when compared to the corresponding 
+elements of the entire eigen vector.
+
+An example to illustrate this follows.
+
+```{r}
+  pcmVec <- c(1/3,1/2,1/8,  1,1/6, 3)
+  pcm <- createPCM(pcmVec)
+  colnames(pcm) <- rownames(pcm) <- c('a1', 'a2', 'a3', 'a4')
+  pcm
+```
+The eigen vector of this PCM is `r paste("(",paste(round(abs(Re(eigen(pcm)$vectors[,1])),7),collapse=", "),")")`.
+
+The triad reversals for this PCM can be obtained as follows.
+
+```{r}
+  #trdf <- triadReversal(pcm)
+  trdf <- consEval(pcm)$triadsData
+  trdf
+```
+This PCM has 3 triad reversals indicated by the 3 rows displayed above.
+
+Let us examine the first row displayed. It shows that the triad PCM constructed 
+by taking the row-columns corresponding to a2, a3, a1 has a preference reversal
+of 2.661258.
+
+The following code segment displays this PCM.
+
+```{r}
+  pcm3Vec <- c(1,3, 2)
+  pcm3 <- createPCM(pcm3Vec)
+  colnames(pcm3) <- rownames(pcm3) <- c('a2', 'a3', 'a1')
+  pcm3
+```
+
+The eigen vector of this triad PCM is `r paste("(",paste(round(abs(Re(eigen(pcm3)$vectors[,1])),7),collapse=", "),")")`.
+
+The corresponding principal eigenvector elements for a2, a3 from the original order-4 PCM are 0.2772163, 0.6444789.
+For a2 and a3 the triadE1 and triadE2 elements have values 0.2772163 and 0.6444789. 
+
+The corresponding values for a2, a3 for the triad PCM are 0.7238135, 0.6323093.
+
+There is a preference reversal in this triad because the preference ratio for a2:a3,
+is more than 1 for one of the comparisons and less for the other.
+
+### Preference a2:a3 considering the entire order-4 PCM
+
+As per the eigen vector of the entire order-4 PCM, the preference ratio of a2:a3
+is 0.2772163 / 0.6444789 = `r 0.2772163 / 0.6444789`, indicating a higher preference for a3 compared to a2.
+
+### Preference a2:a3 considering the triad PCM (a2, a3, a1)
+
+When we consider the triad a2, a3, a1 - row 1 of the data displayed - we see that the preference
+for a2 vis-a-vis a3, is 0.7238135 / 0.6323093 = `r .7238135/.6323093`, indicating a higher 
+preference for a2 compared to a3.
+
+### Reversal in preference between a3 and a3
+
+This reversal in preference is counter-intuitive and indicative of inconsistency.
+The measure of intensity of the reversal is taken to be
+
+```{r}
+  max(0.4301402/1.1447143, 1.1447143/0.4301402)
+```
+
+as in the first row of the triad reversals data displayed.
+
+Similarly, considering all possible triads - there are $\binom{4}{3}$ triads possible -
+we see that there are three preference reversals, of values
+
+#####
+
+```{r}
+trdf[,4]
+```
+
+Triads form the smallest units prone to inconsistency - a tuple is never inconsistent 
+because transverse elements in a pairwise comparison matrix are reciprocals of 
+one another. For an order `n` PCM there are $\binom{n}{3}$ possible triads, and for each 
+triad there are $\binom{3}{2}=3$ pairs which can have preference reversals.
+
+Thus, for an order-`n` PCM the maximum possible number of preference reversals is
+$3 \times \binom{n}{3}$.
+
+In this example we see that there are 3 preference reversals out of a maximum possible 
+of $3 \times \binom{4}{3}$ = 12, with a maximum intensity of 2.661259 between
+`a2` and `a3` considering `a1` as the third element in the triad.
+
+The `AHPtools` package also has a function `triadConsistency` which summarises the
+results of observed reversals for any given PCM.
+
+```{r}
+consEval(pcm)
+```
+
+The `$triadsData` is a list of all preference reversals observed and we have already seen 
+this as an output of `triadReversal(pcm)`. We have already observed that there are 3 
+preference reversals out of a maximum possible 12. This gives the value of `consEval(pcm)$prop3Rev`.
+
+Similarly, the maximum preference reversal is given by `consEval(pcm)$max3Rev` 
+and is 2.661258 as we have already seen.
+
+The `consEval(pcm)$logitConsistency` value is an indicator of the consistency of the
+PCM. On a scale of 0 to 1, this value indicates that the PCM is highly likely to be
+inconsistent.

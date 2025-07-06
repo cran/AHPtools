@@ -83,6 +83,41 @@ mDev <- function(pcm, ppcm) {
   return(inconGM=mgm)
 }
 
+#' @title Create a Random Pairwise Comparison Matrix of given order n
+#' @description Create a Random Pairwise Comparison Matrix of order n for Analytic Hierarchy
+#' Process using Saaty's 17-point Fundamental Scale for comparison ratios of the 
+#' upper triangular elements of the order n PCM
+#'
+#' @param PCMsize The order of the random 'PCM' to be generated
+#'
+#' @returns A Pairwise Comparison Matrix corresponding to the given order
+#' @importFrom stats runif
+#' @examples
+#' PCM <- createPCM(5);
+#' PCM <- createPCM(11);
+#' @export
+createRandomPCM <- function(PCMsize) {
+    n <- PCMsize
+    fscale <- c(1/(9:2),1:9)
+    vec <- sample(fscale, choose(n,2), replace=T)
+    
+    if (n!=as.integer(n)) {
+        return(1)
+    } else if (n<=2) {
+        return(2)
+    } else {
+        pcm <- diag(n)
+        vecPtr <- 0
+        for (r in 1:(n-1))
+            for (c in (r+1):n) {
+                vecPtr <- vecPtr+1
+                pcm[r,c] <- vec[vecPtr]
+                pcm[c,r] <- 1/vec[vecPtr]
+            }
+    }
+    return(pcm)
+}
+
 #' @param vec
 #'
 #' @title Create a Pairwise Comparison Matrix of order n for Analytic Hierarchy
@@ -310,10 +345,6 @@ improveCR <- function(PCM,typePCM=TRUE) {
 #' eigenvectors of the input and the perturbed 'PCMs'
 #' @importFrom stats runif
 #' @examples
-#' revcons1 <- revisedConsistency(matrix(
-#'                  c(1,1/4,1/4,7,1/5, 4,1,1,9,1/4, 4,1,1,8,1/4,
-#'                  1/7,1/9,1/8,1,1/9, 5,4,4,9,1), nrow=5, byrow=TRUE))
-#' revcons1
 #' sensitivity2 <- sensitivity(matrix(
 #'                  c(1,7,1,9,8, 1/7,1,1/6,7,9, 1,6,1,9,9, 1/9,1/7,1/9,1,5,
 #'                  1/8,1/9,1/9,1/5,1), nrow=5, byrow=TRUE))
